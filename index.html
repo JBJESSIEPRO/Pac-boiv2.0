@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pac-Boi</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #111;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #hud {
+      display: flex;
+      gap: 30px;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    #gameArea {
+      width: 400px;
+      height: 400px;
+      background-color: #000;
+      border: 3px solid #fff;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #pacman, #ghost, .pellet {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      transition: transform 0.2s;
+    }
+
+    #pacman {
+      background-color: yellow;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    #ghost {
+      background-color: red;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    .pellet {
+      background-color: white;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+    }
+
+    button {
+      margin: 5px;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.85);
+      color: red;
+      font-size: 24px;
+      text-align: center;
+      padding: 20px;
+      border: 2px solid red;
+      border-radius: 10px;
+      display: none;
+      z-index: 10;
+    }
+
+    #gameOver button {
+      margin-top: 10px;
+      background: red;
+      color: white;
+      font-size: 18px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pac-Boi</h1>
+
+  <div id="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Time: <span id="timer">0</span>s</div>
+  </div>
+
+  <div id="gameArea">
+    <div id="pacman"></div>
+    <div id="ghost"></div>
+    <div id="gameOver">
+      Game Over!<br/>
+      <button onclick="restartGame()">Restart</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="row">
+      <button id="up">↑</button>
+    </div>
+    <div class="row">
+      <button id="left">←</button>
+      <button id="down">↓</button>
+      <button id="right">→</button>
+    </div>
+  </div>
+
+  <script>
+    const pacman = document.getElementById("pacman");
+    const ghost = document.getElementById("ghost");
+    const gameOverText = document.getElementById("gameOver");
+    const gameArea = document.getElementById("gameArea");
+    const scoreDisplay = document.getElementById("score");
+    const timerDisplay = document.getElementById("timer");
+
+    let pacmanPos = { x: 0, y: 0 };
+    let ghostPos = { x: 360, y: 360 };
+    let ghostInterval;
+    let timerInterval;
+    let pellet = null;
+    let ghostFrozen = false;
+    let score = 0;
+    let timeElapsed = 0;
+
+    function updatePosition() {
+      pacman.style.transform = `translate(${pacmanPos.x}px, ${pacmanPos.y}px)`;
+      ghost.style.transform = `translate(${ghostPos.x}px, ${ghostPos.y}px)`;
+    }
+
+    function movePacman(direction) {
+      if (direction === "up" && pacmanPos.y > 0) pacmanPos.y -= 40;
+      if (direction === "down" && pacmanPos.y < 360) pacmanPos.y += 40;
+      if (direction === "left" && pacmanPos.x > 0) pacmanPos.x -= 40;
+      if (direction === "right" && pacmanPos.x < 360) pacmanPos.x += 40;
+
+      updatePosition();
+      checkCollision();
+      checkPelletPickup();
+    }
+
+    function moveGhostSmart() {
+      if (ghostFrozen) return;
+
+      if (Math.random() < 0.5) {
+        if (ghostPos.x < pacmanPos.x && ghostPos.x < 360) ghostPos.x += 40;
+        else if (ghostPos.x > pacmanPos.x && ghostPos.x > 0) ghostPos.x -= 40;
+      } else {
+        if (ghostPos.y < pacmanPos.y && ghostPos.y < 360) ghostPos.y += 40;
+        else if (ghostPos.y > pacmanPos.y && ghostPos.y > 0) ghostPos.y -= 40;
+      }
+
+      updatePosition();
+      checkCollision();
+    }
+
+    function checkCollision() {
+      if (pacmanPos.x === ghostPos.x && pacmanPos.y === ghostPos.y) {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      gameOverText.style.display = "block";
+      clearInterval(ghostInterval);
+      clearInterval(timerInterval);
+    }
+
+    function restartGame() {
+      pacmanPos = { x: 0, y: 0 };
+      ghostPos = { x: 360, y: 360 };
+      score = 0;
+      timeElapsed = 0;
+      updateHUD();
+      updatePosition();
+      gameOverText.style.display = "none";
+      spawnPellet();
+      ghostInterval = setInterval(moveGhostSmart, 500);
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function spawnPellet() {
+      if (pellet) pellet.remove();
+
+      const pelletEl = document.createElement("div");
+      pelletEl.className = "pellet";
+
+      const posX = Math.floor(Math.random() * 10) * 40;
+      const posY = Math.floor(Math.random() * 10) * 40;
+
+      pelletEl.style.transform = `translate(${posX}px, ${posY}px)`;
+      pelletEl.dataset.x = posX;
+      pelletEl.dataset.y = posY;
+
+      gameArea.appendChild(pelletEl);
+      pellet = pelletEl;
+    }
+
+    function checkPelletPickup() {
+      if (!pellet) return;
+
+      const px = parseInt(pellet.dataset.x);
+      const py = parseInt(pellet.dataset.y);
+
+      if (pacmanPos.x === px && pacmanPos.y === py) {
+        pellet.remove();
+        pellet = null;
+        score += 10;
+        updateHUD();
+        freezeGhost();
+        spawnPellet();
+      }
+    }
+
+    function freezeGhost() {
+      ghostFrozen = true;
+      setTimeout(() => {
+        ghostFrozen = false;
+      }, 5000); // freeze for 5 seconds
+    }
+
+    function updateTimer() {
+      timeElapsed++;
+      updateHUD();
+    }
+
+    function updateHUD() {
+      scoreDisplay.textContent = score;
+      timerDisplay.textContent = timeElapsed;
+    }
+
+    // Event Listeners
+    document.getElementById("up").addEventListener("click", () => movePacman("up"));
+    document.getElementById("down").addEventListener("click", () => movePacman("down"));
+    document.getElementById("left").addEventListener("click", () => movePacman("left"));
+    document.getElementById("right").addEventListener("click", () => movePacman("right"));
+
+    // Start game on load
+    window.onload = () => {
+      updateHUD();
+      updatePosition();
+      spawnPellet();
+      ghostInterval = setInterval(moveGhostSmart, 500);
+      timerInterval = setInterval(updateTimer, 1000);
+    };
+  </script>
+</body>
+</html>
