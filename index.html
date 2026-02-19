@@ -106,17 +106,117 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
+      /* HOME SCREEN STYLING */
+
+#homeScreen,
+#mapSelectScreen,
+#leaderboardScreen {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.logo {
+  font-size: 60px;
+  color: white;
+  text-shadow:
+    0 0 5px #00ffff,
+    0 0 10px #00ffff,
+    0 0 20px #0088ff;
+}
+
+.tagline {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #ccc;
+}
+
+.menuButtons button,
+#mapSelectScreen button,
+#leaderboardScreen button {
+  display: block;
+  margin: 15px auto;
+  padding: 12px 30px;
+  font-size: 18px;
+  background: #111;
+  color: white;
+  border: 2px solid #00ffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.menuButtons button:hover,
+#mapSelectScreen button:hover,
+#leaderboardScreen button:hover {
+  background: #00ffff;
+  color: black;
+  box-shadow: 0 0 15px #00ffff;
+  transform: scale(1.05);
+}
+
+.menuTitle {
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #ff00ff;
+}
+
+
   </style>
 </head>
 <body>
+
+<!-- HOME SCREEN -->
+<div id="homeScreen">
+  <h1 class="logo">PAC-BOI</h1>
+  <p class="tagline">Collect. Freeze. Survive.</p>
+
+  <div class="menuButtons">
+    <button onclick="showMapSelect()">PLAY</button>
+    <button onclick="showLeaderboard()">LEADERBOARD</button>
+  </div>
+</div>
+
+<!-- home page -->
+
+<!-- MAP SELECT SCREEN -->
+<div id="mapSelectScreen" style="display:none;">
+  <h2 class="menuTitle">SELECT MAP</h2>
+
+  <button onclick="selectMap('classic')">
+    Classic Arena<br>
+    <span id="classicHighScore">High Score: 0</span>
+  </button>
+
+  <button onclick="selectMap('maze')">
+    Maze Mode<br>
+    <span id="mazeHighScore">High Score: 0</span>
+  </button>
+
+  <br>
+  <button onclick="goHome()">BACK</button>
+</div>
+
+<!-- LEADERBOARD SCREEN -->
+<div id="leaderboardScreen" style="display:none;">
+  <h2 class="menuTitle">LEADERBOARD</h2>
+
+  <p>Classic Arena: <span id="classicBoard">0</span></p>
+  <p>Maze Mode: <span id="mazeBoard">0</span></p>
+
+  <button onclick="goHome()">BACK</button>
+<div>
+
+<!-- end of home page -->
+
   <h1>Pac-Boi</h1>
 
-  <div id="hud">
+  <div id="hud" style="display:none;">
     <div>Score: <span id="score">0</span></div>
     <div>Time: <span id="timer">0</span>s</div>
   </div>
 
-  <div id="gameArea">
+  <div id="gameArea" style="display:none;">
     <div id="pacman"></div>
     <div id="ghost"></div>
     <div id="gameOver">
@@ -191,10 +291,30 @@
     }
 
     function endGame() {
+      saveHighScore();
       gameOverText.style.display = "block";
       clearInterval(ghostInterval);
       clearInterval(timerInterval);
     }
+
+function saveHighScore() {
+  const key = currentMap + "HighScore";
+  const best = localStorage.getItem(key) || 0;
+
+  if (score > best) {
+    localStorage.setItem(key, score);
+  }
+}
+function updateHighScores() {
+  const classic = localStorage.getItem("classicHighScore") || 0;
+  const maze = localStorage.getItem("mazeHighScore") || 0;
+
+  document.getElementById("classicHighScore").innerText = "High Score: " + classic;
+  document.getElementById("mazeHighScore").innerText = "High Score: " + maze;
+
+  document.getElementById("classicBoard").innerText = classic;
+  document.getElementById("mazeBoard").innerText = maze;
+}
 
     function restartGame() {
       pacmanPos = { x: 0, y: 0 };
@@ -259,6 +379,43 @@
       timerDisplay.textContent = timeElapsed;
     }
 
+
+let currentMap = "classic";
+
+function showMapSelect() {
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("mapSelectScreen").style.display = "block";
+  updateHighScores();
+}
+
+function showLeaderboard() {
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("leaderboardScreen").style.display = "block";
+  updateHighScores();
+}
+
+function goHome() {
+ 
+clearInterval(ghostInterval);
+clearInterval(timerInterval);
+ document.getElementById("mapSelectScreen").style.display = "none";
+  document.getElementById("leaderboardScreen").style.display = "none";
+  document.getElementById("gameArea").style.display = "none";
+  document.getElementById("hud").style.display = "none";
+  document.getElementById("homeScreen").style.display = "block";
+}
+
+function selectMap(map) {
+  currentMap = map;
+
+  document.getElementById("mapSelectScreen").style.display = "none";
+  document.getElementById("gameArea").style.display = "block";
+  document.getElementById("hud").style.display = "flex";
+
+  restartGame();
+}
+
+
     // Event Listeners
     document.getElementById("up").addEventListener("click", () => movePacman("up"));
     document.getElementById("down").addEventListener("click", () => movePacman("down"));
@@ -272,14 +429,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") movePacman("right");
 });
 
-    // Start game on load
-    window.onload = () => {
-      updateHUD();
-      updatePosition();
-      spawnPellet();
-      ghostInterval = setInterval(moveGhostSmart, 500);
-      timerInterval = setInterval(updateTimer, 1000);
-    };
+ 
   </script>
 </body>
 </html>
