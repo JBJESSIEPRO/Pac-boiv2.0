@@ -1,174 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pac-Boi</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #111;
-      color: white;
-      font-family: sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pac-Boi</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #111;
+    color: white;
+    font-family: sans-serif;
+  }
 
-    #hud {
-      display: flex;
-      gap: 30px;
-      margin-top: 10px;
-      font-size: 18px;
-    }
+  /* HUD and Game Area */
+  #hud {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+    font-size: 18px;
+  }
 
-    #gameArea {
-      width: 400px;
-      height: 400px;
-      background-color: #000;
-      border: 3px solid #fff;
-      margin-top: 10px;
-      position: relative;
-      overflow: hidden;
-    }
+  #gameArea {
+    width: 400px;
+    height: 400px;
+    background-color: #000;
+    border: 3px solid #fff;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+  }
 
-    #pacman, #ghost, .pellet {
-      width: 40px;
-      height: 40px;
-      position: absolute;
-      transition: transform 0.2s;
-    }
+  #pacman, #ghost, .pellet {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    transition: transform 0.2s;
+  }
 
-    #pacman {
-      background-color: yellow;
-      border-radius: 50%;
-      z-index: 2;
-    }
+  #pacman {
+    background-color: yellow;
+    border-radius: 50%;
+    z-index: 2;
+  }
 
-    #ghost {
-      background-color: red;
-      border-radius: 50%;
-      z-index: 2;
-    }
+  #ghost {
+    background-color: red;
+    border-radius: 50%;
+    z-index: 2;
+  }
 
-    .pellet {
-      background-color: white;
-      border-radius: 50%;
-      z-index: 1;
-    }
+  .pellet {
+    background-color: white;
+    border-radius: 50%;
+    z-index: 1;
+  }
 
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 15px;
-    }
+  /* Touch Controls */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+  }
+  .controls button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
 
-    .row {
-      display: flex;
-      justify-content: center;
-    }
+  /* Game Over and Pause Menu */
+  #gameOver, #pauseMenu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0,0,0,0.85);
+    color: red;
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+    border: 2px solid red;
+    border-radius: 10px;
+    display: none;
+    z-index: 10;
+  }
+  #gameOver button, #pauseMenu button {
+    margin-top: 10px;
+    background: red;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-    button {
-      margin: 5px;
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+  /* Home, Map Select, Leaderboard */
+  #homeScreen, #mapSelectScreen, #leaderboardScreen {
+    text-align: center;
+    margin-top: 80px;
+  }
 
-    #gameOver {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.85);
-      color: red;
-      font-size: 24px;
-      text-align: center;
-      padding: 20px;
-      border: 2px solid red;
-      border-radius: 10px;
-      display: none;
-      z-index: 10;
-    }
+  .logo {
+    font-size: 60px;
+    color: white;
+    text-shadow:
+      0 0 5px #00ffff,
+      0 0 10px #00ffff,
+      0 0 20px #0088ff;
+  }
 
-    #gameOver button {
-      margin-top: 10px;
-      background: red;
-      color: white;
-      font-size: 18px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+  .tagline {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #ccc;
+  }
 
-    /* HOME SCREEN STYLING */
-    #homeScreen,
-    #mapSelectScreen,
-    #leaderboardScreen {
-      text-align: center;
-      margin-top: 80px;
-    }
+  .menuButtons button,
+  #mapSelectScreen button,
+  #leaderboardScreen button {
+    width: 200px; /* wide for text */
+    min-height: 60px;
+    font-size: 18px;
+    display: block;
+    margin: 15px auto;
+    padding: 12px 10px;
+    background: #111;
+    color: white;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: normal;
+    text-align: center;
+  }
 
-    .logo {
-      font-size: 60px;
-      color: white;
-      text-shadow:
-        0 0 5px #00ffff,
-        0 0 10px #00ffff,
-        0 0 20px #0088ff;
-    }
+  .menuButtons button:hover,
+  #mapSelectScreen button:hover,
+  #leaderboardScreen button:hover {
+    background: #00ffff;
+    color: black;
+    box-shadow: 0 0 15px #00ffff;
+    transform: scale(1.05);
+  }
 
-    .tagline {
-      font-size: 18px;
-      margin-bottom: 30px;
-      color: #ccc;
-    }
+  .menuTitle {
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #ff00ff;
+  }
 
-    .menuButtons button,
-    #mapSelectScreen button,
-    #leaderboardScreen button {
-      display: block;
-      margin: 15px auto;
-      padding: 12px 30px;
-      font-size: 18px;
-      background: #111;
-      color: white;
-      border: 2px solid #00ffff;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .menuButtons button:hover,
-    #mapSelectScreen button:hover,
-    #leaderboardScreen button:hover {
-      background: #00ffff;
-      color: black;
-      box-shadow: 0 0 15px #00ffff;
-      transform: scale(1.05);
-    }
-
-    .menuTitle {
-      font-size: 32px;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px #ff00ff;
-    }
-
-    /* Fix for map select button text */
-    button .btnText {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      line-height: 1.2;
-    }
-
-  </style>
+</style>
 </head>
 <body>
 
@@ -176,7 +169,6 @@
 <div id="homeScreen">
   <h1 class="logo">PAC-BOI</h1>
   <p class="tagline">Collect. Freeze. Survive.</p>
-
   <div class="menuButtons">
     <button onclick="showMapSelect()">PLAY</button>
     <button onclick="showLeaderboard()">LEADERBOARD</button>
@@ -186,21 +178,8 @@
 <!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" style="display:none;">
   <h2 class="menuTitle">SELECT MAP</h2>
-
-  <button onclick="selectMap('classic')">
-    <div class="btnText">
-      <div>Classic Arena</div>
-      <div id="classicHighScore">High Score: 0</div>
-    </div>
-  </button>
-
-  <button onclick="selectMap('maze')">
-    <div class="btnText">
-      <div>Maze Mode</div>
-      <div id="mazeHighScore">High Score: 0</div>
-    </div>
-  </button>
-
+  <button onclick="selectMap('classic')">Classic Arena<br><span id="classicHighScore">High Score: 0</span></button>
+  <button onclick="selectMap('maze')">Maze Mode<br><span id="mazeHighScore">High Score: 0</span></button>
   <br>
   <button onclick="goHome()">BACK</button>
 </div>
@@ -208,17 +187,16 @@
 <!-- LEADERBOARD SCREEN -->
 <div id="leaderboardScreen" style="display:none;">
   <h2 class="menuTitle">LEADERBOARD</h2>
-
   <p>Classic Arena: <span id="classicBoard">0</span></p>
   <p>Maze Mode: <span id="mazeBoard">0</span></p>
-
   <button onclick="goHome()">BACK</button>
 </div>
 
-<!-- GAME AREA -->
+<!-- GAME HUD & AREA -->
 <div id="hud" style="display:none;">
   <div>Score: <span id="score">0</span></div>
   <div>Time: <span id="timer">0</span>s</div>
+  <button onclick="pauseGame()">PAUSE</button>
 </div>
 
 <div id="gameArea" style="display:none;">
@@ -227,20 +205,25 @@
   <div id="gameOver">
     Game Over!<br/>
     <button onclick="restartGame()">Restart</button>
+    <button onclick="goHome()">Exit</button>
+  </div>
+  <div id="pauseMenu">
+    <h2 style="color:white;">Paused</h2>
+    <button onclick="resumeGame()">Resume</button>
+    <button onclick="restartGame()">Restart</button>
+    <button onclick="goHome()">Exit</button>
   </div>
 </div>
 
 <!-- TOUCH CONTROLS -->
-<div id="controlsContainer" style="display:none;">
-  <div class="controls">
-    <div class="row">
-      <button id="up">↑</button>
-    </div>
-    <div class="row">
-      <button id="left">←</button>
-      <button id="down">↓</button>
-      <button id="right">→</button>
-    </div>
+<div class="controls">
+  <div class="row">
+    <button id="up">↑</button>
+  </div>
+  <div class="row">
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
   </div>
 </div>
 
@@ -248,9 +231,11 @@
   const pacman = document.getElementById("pacman");
   const ghost = document.getElementById("ghost");
   const gameOverText = document.getElementById("gameOver");
+  const pauseMenu = document.getElementById("pauseMenu");
   const gameArea = document.getElementById("gameArea");
   const scoreDisplay = document.getElementById("score");
   const timerDisplay = document.getElementById("timer");
+  const controls = document.querySelector(".controls");
 
   let pacmanPos = { x: 0, y: 0 };
   let ghostPos = { x: 360, y: 360 };
@@ -261,165 +246,157 @@
   let score = 0;
   let timeElapsed = 0;
   let currentMap = "classic";
+  let paused = false;
 
   function updatePosition() {
     pacman.style.transform = `translate(${pacmanPos.x}px, ${pacmanPos.y}px)`;
     ghost.style.transform = `translate(${ghostPos.x}px, ${ghostPos.y}px)`;
   }
 
-  function movePacman(direction) {
-    if (direction === "up" && pacmanPos.y > 0) pacmanPos.y -= 40;
-    if (direction === "down" && pacmanPos.y < 360) pacmanPos.y += 40;
-    if (direction === "left" && pacmanPos.x > 0) pacmanPos.x -= 40;
-    if (direction === "right" && pacmanPos.x < 360) pacmanPos.x += 40;
-
-    updatePosition();
-    checkCollision();
-    checkPelletPickup();
+  function movePacman(dir){
+    if(paused) return;
+    if(dir==="up" && pacmanPos.y>0) pacmanPos.y-=40;
+    if(dir==="down" && pacmanPos.y<360) pacmanPos.y+=40;
+    if(dir==="left" && pacmanPos.x>0) pacmanPos.x-=40;
+    if(dir==="right" && pacmanPos.x<360) pacmanPos.x+=40;
+    updatePosition(); checkCollision(); checkPelletPickup();
   }
 
-  function moveGhostSmart() {
-    if (ghostFrozen) return;
-
-    if (Math.random() < 0.5) {
-      if (ghostPos.x < pacmanPos.x && ghostPos.x < 360) ghostPos.x += 40;
-      else if (ghostPos.x > pacmanPos.x && ghostPos.x > 0) ghostPos.x -= 40;
-    } else {
-      if (ghostPos.y < pacmanPos.y && ghostPos.y < 360) ghostPos.y += 40;
-      else if (ghostPos.y > pacmanPos.y && ghostPos.y > 0) ghostPos.y -= 40;
+  function moveGhostSmart(){
+    if(ghostFrozen || paused) return;
+    if(Math.random()<0.5){
+      if(ghostPos.x<pacmanPos.x && ghostPos.x<360) ghostPos.x+=40;
+      else if(ghostPos.x>pacmanPos.x && ghostPos.x>0) ghostPos.x-=40;
+    }else{
+      if(ghostPos.y<pacmanPos.y && ghostPos.y<360) ghostPos.y+=40;
+      else if(ghostPos.y>pacmanPos.y && ghostPos.y>0) ghostPos.y-=40;
     }
-
-    updatePosition();
-    checkCollision();
+    updatePosition(); checkCollision();
   }
 
-  function checkCollision() {
-    if (pacmanPos.x === ghostPos.x && pacmanPos.y === ghostPos.y) endGame();
+  function checkCollision(){
+    if(pacmanPos.x===ghostPos.x && pacmanPos.y===ghostPos.y) endGame();
   }
 
-  function endGame() {
+  function endGame(){
     saveHighScore();
-    gameOverText.style.display = "block";
-    clearInterval(ghostInterval);
-    clearInterval(timerInterval);
+    gameOverText.style.display="block";
+    clearInterval(ghostInterval); clearInterval(timerInterval);
   }
 
-  function saveHighScore() {
-    const key = currentMap + "HighScore";
-    const best = localStorage.getItem(key) || 0;
-    if (score > best) localStorage.setItem(key, score);
+  function saveHighScore(){
+    const key = currentMap+"HighScore";
+    const best = localStorage.getItem(key)||0;
+    if(score>best) localStorage.setItem(key,score);
   }
 
-  function updateHighScores() {
-    const classic = localStorage.getItem("classicHighScore") || 0;
-    const maze = localStorage.getItem("mazeHighScore") || 0;
-
-    document.getElementById("classicHighScore").innerText = "High Score: " + classic;
-    document.getElementById("mazeHighScore").innerText = "High Score: " + maze;
-
-    document.getElementById("classicBoard").innerText = classic;
-    document.getElementById("mazeBoard").innerText = maze;
+  function updateHighScores(){
+    const classic = localStorage.getItem("classicHighScore")||0;
+    const maze = localStorage.getItem("mazeHighScore")||0;
+    document.getElementById("classicHighScore").innerText="High Score: "+classic;
+    document.getElementById("mazeHighScore").innerText="High Score: "+maze;
+    document.getElementById("classicBoard").innerText=classic;
+    document.getElementById("mazeBoard").innerText=maze;
   }
 
-  function restartGame() {
-    pacmanPos = { x: 0, y: 0 };
-    ghostPos = { x: 360, y: 360 };
-    score = 0;
-    timeElapsed = 0;
-    updateHUD();
-    updatePosition();
-    gameOverText.style.display = "none";
+  function restartGame(){
+    paused=false;
+    pacmanPos={x:0,y:0};
+    ghostPos={x:360,y:360};
+    score=0; timeElapsed=0;
+    updateHUD(); updatePosition();
+    gameOverText.style.display="none"; pauseMenu.style.display="none";
     spawnPellet();
-    ghostInterval = setInterval(moveGhostSmart, 500);
-    timerInterval = setInterval(updateTimer, 1000);
+    clearInterval(ghostInterval); clearInterval(timerInterval);
+    ghostInterval=setInterval(moveGhostSmart,500);
+    timerInterval=setInterval(()=>{ if(!paused) {timeElapsed++;updateHUD();}},1000);
   }
 
-  function spawnPellet() {
-    if (pellet) pellet.remove();
-    const pelletEl = document.createElement("div");
-    pelletEl.className = "pellet";
-    const posX = Math.floor(Math.random() * 10) * 40;
-    const posY = Math.floor(Math.random() * 10) * 40;
-    pelletEl.style.transform = `translate(${posX}px, ${posY}px)`;
-    pelletEl.dataset.x = posX;
-    pelletEl.dataset.y = posY;
-    gameArea.appendChild(pelletEl);
-    pellet = pelletEl;
+  function spawnPellet(){
+    if(pellet) pellet.remove();
+    const pelletEl=document.createElement("div");
+    pelletEl.className="pellet";
+    const posX=Math.floor(Math.random()*10)*40;
+    const posY=Math.floor(Math.random()*10)*40;
+    pelletEl.style.transform=`translate(${posX}px, ${posY}px)`;
+    pelletEl.dataset.x=posX; pelletEl.dataset.y=posY;
+    gameArea.appendChild(pelletEl); pellet=pelletEl;
   }
 
-  function checkPelletPickup() {
-    if (!pellet) return;
-    const px = parseInt(pellet.dataset.x);
-    const py = parseInt(pellet.dataset.y);
-    if (pacmanPos.x === px && pacmanPos.y === py) {
-      pellet.remove();
-      pellet = null;
-      score += 10;
-      updateHUD();
-      freezeGhost();
-      spawnPellet();
+  function checkPelletPickup(){
+    if(!pellet) return;
+    const px=parseInt(pellet.dataset.x);
+    const py=parseInt(pellet.dataset.y);
+    if(pacmanPos.x===px && pacmanPos.y===py){
+      pellet.remove(); pellet=null; score+=10; updateHUD(); freezeGhost(); spawnPellet();
     }
   }
 
-  function freezeGhost() {
-    ghostFrozen = true;
-    setTimeout(() => ghostFrozen = false, 5000);
+  function freezeGhost(){ ghostFrozen=true; setTimeout(()=>{ghostFrozen=false;},5000); }
+
+  function updateHUD(){
+    scoreDisplay.textContent=score; timerDisplay.textContent=timeElapsed;
   }
 
-  function updateTimer() {
-    timeElapsed++;
-    updateHUD();
-  }
-
-  function updateHUD() {
-    scoreDisplay.textContent = score;
-    timerDisplay.textContent = timeElapsed;
-  }
-
-  // Screen navigation
-  function showMapSelect() {
-    document.getElementById("homeScreen").style.display = "none";
-    document.getElementById("mapSelectScreen").style.display = "block";
+  function showMapSelect(){ 
+    document.getElementById("homeScreen").style.display="none";
+    document.getElementById("mapSelectScreen").style.display="block";
+    controls.style.display="none";
     updateHighScores();
   }
 
-  function showLeaderboard() {
-    document.getElementById("homeScreen").style.display = "none";
-    document.getElementById("leaderboardScreen").style.display = "block";
+  function showLeaderboard(){
+    document.getElementById("homeScreen").style.display="none";
+    document.getElementById("leaderboardScreen").style.display="block";
+    controls.style.display="none";
     updateHighScores();
   }
 
-  function goHome() {
-    clearInterval(ghostInterval);
-    clearInterval(timerInterval);
-    document.getElementById("mapSelectScreen").style.display = "none";
-    document.getElementById("leaderboardScreen").style.display = "none";
-    document.getElementById("gameArea").style.display = "none";
-    document.getElementById("hud").style.display = "none";
-    document.getElementById("controlsContainer").style.display = "none";
-    document.getElementById("homeScreen").style.display = "block";
+  function goHome(){
+    paused=false;
+    clearInterval(ghostInterval); clearInterval(timerInterval);
+    document.getElementById("mapSelectScreen").style.display="none";
+    document.getElementById("leaderboardScreen").style.display="none";
+    document.getElementById("gameArea").style.display="none";
+    document.getElementById("hud").style.display="none";
+    controls.style.display="none";
+    document.getElementById("homeScreen").style.display="block";
   }
 
-  function selectMap(map) {
-    currentMap = map;
-    document.getElementById("mapSelectScreen").style.display = "none";
-    document.getElementById("gameArea").style.display = "block";
-    document.getElementById("hud").style.display = "flex";
-    document.getElementById("controlsContainer").style.display = "block";
+  function selectMap(map){
+    currentMap=map;
+    document.getElementById("mapSelectScreen").style.display="none";
+    document.getElementById("gameArea").style.display="block";
+    document.getElementById("hud").style.display="flex";
+    controls.style.display="flex";
     restartGame();
   }
 
-  // Event listeners
-  document.getElementById("up").addEventListener("click", () => movePacman("up"));
-  document.getElementById("down").addEventListener("click", () => movePacman("down"));
-  document.getElementById("left").addEventListener("click", () => movePacman("left"));
-  document.getElementById("right").addEventListener("click", () => movePacman("right"));
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") movePacman("up");
-    if (e.key === "ArrowDown") movePacman("down");
-    if (e.key === "ArrowLeft") movePacman("left");
-    if (e.key === "ArrowRight") movePacman("right");
+  /* PAUSE FUNCTIONS */
+  function pauseGame(){
+    paused=true;
+    pauseMenu.style.display="block";
+  }
+  function resumeGame(){
+    paused=false;
+    pauseMenu.style.display="none";
+  }
+
+  // TOUCH CONTROLS
+  document.getElementById("up").addEventListener("click",()=>movePacman("up"));
+  document.getElementById("down").addEventListener("click",()=>movePacman("down"));
+  document.getElementById("left").addEventListener("click",()=>movePacman("left"));
+  document.getElementById("right").addEventListener("click",()=>movePacman("right"));
+
+  // KEYBOARD CONTROLS
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="ArrowUp") movePacman("up");
+    if(e.key==="ArrowDown") movePacman("down");
+    if(e.key==="ArrowLeft") movePacman("left");
+    if(e.key==="ArrowRight") movePacman("right");
+    if(e.key==="Escape") pauseGame(); // ESC to pause
   });
+
 </script>
 </body>
 </html>
