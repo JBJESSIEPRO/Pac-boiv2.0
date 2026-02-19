@@ -107,60 +107,66 @@
       cursor: pointer;
     }
 
-      /* HOME SCREEN STYLING */
+    /* HOME SCREEN STYLING */
+    #homeScreen,
+    #mapSelectScreen,
+    #leaderboardScreen {
+      text-align: center;
+      margin-top: 80px;
+    }
 
-#homeScreen,
-#mapSelectScreen,
-#leaderboardScreen {
-  text-align: center;
-  margin-top: 80px;
-}
+    .logo {
+      font-size: 60px;
+      color: white;
+      text-shadow:
+        0 0 5px #00ffff,
+        0 0 10px #00ffff,
+        0 0 20px #0088ff;
+    }
 
-.logo {
-  font-size: 60px;
-  color: white;
-  text-shadow:
-    0 0 5px #00ffff,
-    0 0 10px #00ffff,
-    0 0 20px #0088ff;
-}
+    .tagline {
+      font-size: 18px;
+      margin-bottom: 30px;
+      color: #ccc;
+    }
 
-.tagline {
-  font-size: 18px;
-  margin-bottom: 30px;
-  color: #ccc;
-}
+    .menuButtons button,
+    #mapSelectScreen button,
+    #leaderboardScreen button {
+      display: block;
+      margin: 15px auto;
+      padding: 12px 30px;
+      font-size: 18px;
+      background: #111;
+      color: white;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
 
-.menuButtons button,
-#mapSelectScreen button,
-#leaderboardScreen button {
-  display: block;
-  margin: 15px auto;
-  padding: 12px 30px;
-  font-size: 18px;
-  background: #111;
-  color: white;
-  border: 2px solid #00ffff;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+    .menuButtons button:hover,
+    #mapSelectScreen button:hover,
+    #leaderboardScreen button:hover {
+      background: #00ffff;
+      color: black;
+      box-shadow: 0 0 15px #00ffff;
+      transform: scale(1.05);
+    }
 
-.menuButtons button:hover,
-#mapSelectScreen button:hover,
-#leaderboardScreen button:hover {
-  background: #00ffff;
-  color: black;
-  box-shadow: 0 0 15px #00ffff;
-  transform: scale(1.05);
-}
+    .menuTitle {
+      font-size: 32px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #ff00ff;
+    }
 
-.menuTitle {
-  font-size: 32px;
-  margin-bottom: 20px;
-  text-shadow: 0 0 10px #ff00ff;
-}
-
+    /* Fix for map select button text */
+    button .btnText {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.2;
+    }
 
   </style>
 </head>
@@ -177,20 +183,22 @@
   </div>
 </div>
 
-<!-- home page -->
-
 <!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" style="display:none;">
   <h2 class="menuTitle">SELECT MAP</h2>
 
   <button onclick="selectMap('classic')">
-    Classic Arena<br>
-    <span id="classicHighScore">High Score: 0</span>
+    <div class="btnText">
+      <div>Classic Arena</div>
+      <div id="classicHighScore">High Score: 0</div>
+    </div>
   </button>
 
   <button onclick="selectMap('maze')">
-    Maze Mode<br>
-    <span id="mazeHighScore">High Score: 0</span>
+    <div class="btnText">
+      <div>Maze Mode</div>
+      <div id="mazeHighScore">High Score: 0</div>
+    </div>
   </button>
 
   <br>
@@ -205,26 +213,25 @@
   <p>Maze Mode: <span id="mazeBoard">0</span></p>
 
   <button onclick="goHome()">BACK</button>
-<div>
+</div>
 
-<!-- end of home page -->
+<!-- GAME AREA -->
+<div id="hud" style="display:none;">
+  <div>Score: <span id="score">0</span></div>
+  <div>Time: <span id="timer">0</span>s</div>
+</div>
 
-  <h1>Pac-Boi</h1>
-
-  <div id="hud" style="display:none;">
-    <div>Score: <span id="score">0</span></div>
-    <div>Time: <span id="timer">0</span>s</div>
+<div id="gameArea" style="display:none;">
+  <div id="pacman"></div>
+  <div id="ghost"></div>
+  <div id="gameOver">
+    Game Over!<br/>
+    <button onclick="restartGame()">Restart</button>
   </div>
+</div>
 
-  <div id="gameArea" style="display:none;">
-    <div id="pacman"></div>
-    <div id="ghost"></div>
-    <div id="gameOver">
-      Game Over!<br/>
-      <button onclick="restartGame()">Restart</button>
-    </div>
-  </div>
-
+<!-- TOUCH CONTROLS -->
+<div id="controlsContainer" style="display:none;">
   <div class="controls">
     <div class="row">
       <button id="up">↑</button>
@@ -235,201 +242,184 @@
       <button id="right">→</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const pacman = document.getElementById("pacman");
-    const ghost = document.getElementById("ghost");
-    const gameOverText = document.getElementById("gameOver");
-    const gameArea = document.getElementById("gameArea");
-    const scoreDisplay = document.getElementById("score");
-    const timerDisplay = document.getElementById("timer");
+<script>
+  const pacman = document.getElementById("pacman");
+  const ghost = document.getElementById("ghost");
+  const gameOverText = document.getElementById("gameOver");
+  const gameArea = document.getElementById("gameArea");
+  const scoreDisplay = document.getElementById("score");
+  const timerDisplay = document.getElementById("timer");
 
-    let pacmanPos = { x: 0, y: 0 };
-    let ghostPos = { x: 360, y: 360 };
-    let ghostInterval;
-    let timerInterval;
-    let pellet = null;
-    let ghostFrozen = false;
-    let score = 0;
-    let timeElapsed = 0;
+  let pacmanPos = { x: 0, y: 0 };
+  let ghostPos = { x: 360, y: 360 };
+  let ghostInterval;
+  let timerInterval;
+  let pellet = null;
+  let ghostFrozen = false;
+  let score = 0;
+  let timeElapsed = 0;
+  let currentMap = "classic";
 
-    function updatePosition() {
-      pacman.style.transform = `translate(${pacmanPos.x}px, ${pacmanPos.y}px)`;
-      ghost.style.transform = `translate(${ghostPos.x}px, ${ghostPos.y}px)`;
-    }
-
-    function movePacman(direction) {
-      if (direction === "up" && pacmanPos.y > 0) pacmanPos.y -= 40;
-      if (direction === "down" && pacmanPos.y < 360) pacmanPos.y += 40;
-      if (direction === "left" && pacmanPos.x > 0) pacmanPos.x -= 40;
-      if (direction === "right" && pacmanPos.x < 360) pacmanPos.x += 40;
-
-      updatePosition();
-      checkCollision();
-      checkPelletPickup();
-    }
-
-    function moveGhostSmart() {
-      if (ghostFrozen) return;
-
-      if (Math.random() < 0.5) {
-        if (ghostPos.x < pacmanPos.x && ghostPos.x < 360) ghostPos.x += 40;
-        else if (ghostPos.x > pacmanPos.x && ghostPos.x > 0) ghostPos.x -= 40;
-      } else {
-        if (ghostPos.y < pacmanPos.y && ghostPos.y < 360) ghostPos.y += 40;
-        else if (ghostPos.y > pacmanPos.y && ghostPos.y > 0) ghostPos.y -= 40;
-      }
-
-      updatePosition();
-      checkCollision();
-    }
-
-    function checkCollision() {
-      if (pacmanPos.x === ghostPos.x && pacmanPos.y === ghostPos.y) {
-        endGame();
-      }
-    }
-
-    function endGame() {
-      saveHighScore();
-      gameOverText.style.display = "block";
-      clearInterval(ghostInterval);
-      clearInterval(timerInterval);
-    }
-
-function saveHighScore() {
-  const key = currentMap + "HighScore";
-  const best = localStorage.getItem(key) || 0;
-
-  if (score > best) {
-    localStorage.setItem(key, score);
+  function updatePosition() {
+    pacman.style.transform = `translate(${pacmanPos.x}px, ${pacmanPos.y}px)`;
+    ghost.style.transform = `translate(${ghostPos.x}px, ${ghostPos.y}px)`;
   }
-}
-function updateHighScores() {
-  const classic = localStorage.getItem("classicHighScore") || 0;
-  const maze = localStorage.getItem("mazeHighScore") || 0;
 
-  document.getElementById("classicHighScore").innerText = "High Score: " + classic;
-  document.getElementById("mazeHighScore").innerText = "High Score: " + maze;
+  function movePacman(direction) {
+    if (direction === "up" && pacmanPos.y > 0) pacmanPos.y -= 40;
+    if (direction === "down" && pacmanPos.y < 360) pacmanPos.y += 40;
+    if (direction === "left" && pacmanPos.x > 0) pacmanPos.x -= 40;
+    if (direction === "right" && pacmanPos.x < 360) pacmanPos.x += 40;
 
-  document.getElementById("classicBoard").innerText = classic;
-  document.getElementById("mazeBoard").innerText = maze;
-}
+    updatePosition();
+    checkCollision();
+    checkPelletPickup();
+  }
 
-    function restartGame() {
-      pacmanPos = { x: 0, y: 0 };
-      ghostPos = { x: 360, y: 360 };
-      score = 0;
-      timeElapsed = 0;
+  function moveGhostSmart() {
+    if (ghostFrozen) return;
+
+    if (Math.random() < 0.5) {
+      if (ghostPos.x < pacmanPos.x && ghostPos.x < 360) ghostPos.x += 40;
+      else if (ghostPos.x > pacmanPos.x && ghostPos.x > 0) ghostPos.x -= 40;
+    } else {
+      if (ghostPos.y < pacmanPos.y && ghostPos.y < 360) ghostPos.y += 40;
+      else if (ghostPos.y > pacmanPos.y && ghostPos.y > 0) ghostPos.y -= 40;
+    }
+
+    updatePosition();
+    checkCollision();
+  }
+
+  function checkCollision() {
+    if (pacmanPos.x === ghostPos.x && pacmanPos.y === ghostPos.y) endGame();
+  }
+
+  function endGame() {
+    saveHighScore();
+    gameOverText.style.display = "block";
+    clearInterval(ghostInterval);
+    clearInterval(timerInterval);
+  }
+
+  function saveHighScore() {
+    const key = currentMap + "HighScore";
+    const best = localStorage.getItem(key) || 0;
+    if (score > best) localStorage.setItem(key, score);
+  }
+
+  function updateHighScores() {
+    const classic = localStorage.getItem("classicHighScore") || 0;
+    const maze = localStorage.getItem("mazeHighScore") || 0;
+
+    document.getElementById("classicHighScore").innerText = "High Score: " + classic;
+    document.getElementById("mazeHighScore").innerText = "High Score: " + maze;
+
+    document.getElementById("classicBoard").innerText = classic;
+    document.getElementById("mazeBoard").innerText = maze;
+  }
+
+  function restartGame() {
+    pacmanPos = { x: 0, y: 0 };
+    ghostPos = { x: 360, y: 360 };
+    score = 0;
+    timeElapsed = 0;
+    updateHUD();
+    updatePosition();
+    gameOverText.style.display = "none";
+    spawnPellet();
+    ghostInterval = setInterval(moveGhostSmart, 500);
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  function spawnPellet() {
+    if (pellet) pellet.remove();
+    const pelletEl = document.createElement("div");
+    pelletEl.className = "pellet";
+    const posX = Math.floor(Math.random() * 10) * 40;
+    const posY = Math.floor(Math.random() * 10) * 40;
+    pelletEl.style.transform = `translate(${posX}px, ${posY}px)`;
+    pelletEl.dataset.x = posX;
+    pelletEl.dataset.y = posY;
+    gameArea.appendChild(pelletEl);
+    pellet = pelletEl;
+  }
+
+  function checkPelletPickup() {
+    if (!pellet) return;
+    const px = parseInt(pellet.dataset.x);
+    const py = parseInt(pellet.dataset.y);
+    if (pacmanPos.x === px && pacmanPos.y === py) {
+      pellet.remove();
+      pellet = null;
+      score += 10;
       updateHUD();
-      updatePosition();
-      gameOverText.style.display = "none";
+      freezeGhost();
       spawnPellet();
-      ghostInterval = setInterval(moveGhostSmart, 500);
-      timerInterval = setInterval(updateTimer, 1000);
     }
+  }
 
-    function spawnPellet() {
-      if (pellet) pellet.remove();
+  function freezeGhost() {
+    ghostFrozen = true;
+    setTimeout(() => ghostFrozen = false, 5000);
+  }
 
-      const pelletEl = document.createElement("div");
-      pelletEl.className = "pellet";
+  function updateTimer() {
+    timeElapsed++;
+    updateHUD();
+  }
 
-      const posX = Math.floor(Math.random() * 10) * 40;
-      const posY = Math.floor(Math.random() * 10) * 40;
+  function updateHUD() {
+    scoreDisplay.textContent = score;
+    timerDisplay.textContent = timeElapsed;
+  }
 
-      pelletEl.style.transform = `translate(${posX}px, ${posY}px)`;
-      pelletEl.dataset.x = posX;
-      pelletEl.dataset.y = posY;
+  // Screen navigation
+  function showMapSelect() {
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("mapSelectScreen").style.display = "block";
+    updateHighScores();
+  }
 
-      gameArea.appendChild(pelletEl);
-      pellet = pelletEl;
-    }
+  function showLeaderboard() {
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("leaderboardScreen").style.display = "block";
+    updateHighScores();
+  }
 
-    function checkPelletPickup() {
-      if (!pellet) return;
+  function goHome() {
+    clearInterval(ghostInterval);
+    clearInterval(timerInterval);
+    document.getElementById("mapSelectScreen").style.display = "none";
+    document.getElementById("leaderboardScreen").style.display = "none";
+    document.getElementById("gameArea").style.display = "none";
+    document.getElementById("hud").style.display = "none";
+    document.getElementById("controlsContainer").style.display = "none";
+    document.getElementById("homeScreen").style.display = "block";
+  }
 
-      const px = parseInt(pellet.dataset.x);
-      const py = parseInt(pellet.dataset.y);
+  function selectMap(map) {
+    currentMap = map;
+    document.getElementById("mapSelectScreen").style.display = "none";
+    document.getElementById("gameArea").style.display = "block";
+    document.getElementById("hud").style.display = "flex";
+    document.getElementById("controlsContainer").style.display = "block";
+    restartGame();
+  }
 
-      if (pacmanPos.x === px && pacmanPos.y === py) {
-        pellet.remove();
-        pellet = null;
-        score += 10;
-        updateHUD();
-        freezeGhost();
-        spawnPellet();
-      }
-    }
-
-    function freezeGhost() {
-      ghostFrozen = true;
-      setTimeout(() => {
-        ghostFrozen = false;
-      }, 5000); // freeze for 5 seconds
-    }
-
-    function updateTimer() {
-      timeElapsed++;
-      updateHUD();
-    }
-
-    function updateHUD() {
-      scoreDisplay.textContent = score;
-      timerDisplay.textContent = timeElapsed;
-    }
-
-
-let currentMap = "classic";
-
-function showMapSelect() {
-  document.getElementById("homeScreen").style.display = "none";
-  document.getElementById("mapSelectScreen").style.display = "block";
-  updateHighScores();
-}
-
-function showLeaderboard() {
-  document.getElementById("homeScreen").style.display = "none";
-  document.getElementById("leaderboardScreen").style.display = "block";
-  updateHighScores();
-}
-
-function goHome() {
- 
-clearInterval(ghostInterval);
-clearInterval(timerInterval);
- document.getElementById("mapSelectScreen").style.display = "none";
-  document.getElementById("leaderboardScreen").style.display = "none";
-  document.getElementById("gameArea").style.display = "none";
-  document.getElementById("hud").style.display = "none";
-  document.getElementById("homeScreen").style.display = "block";
-}
-
-function selectMap(map) {
-  currentMap = map;
-
-  document.getElementById("mapSelectScreen").style.display = "none";
-  document.getElementById("gameArea").style.display = "block";
-  document.getElementById("hud").style.display = "flex";
-
-  restartGame();
-}
-
-
-    // Event Listeners
-    document.getElementById("up").addEventListener("click", () => movePacman("up"));
-    document.getElementById("down").addEventListener("click", () => movePacman("down"));
-    document.getElementById("left").addEventListener("click", () => movePacman("left"));
-    document.getElementById("right").addEventListener("click", () => movePacman("right"));
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp") movePacman("up");
-  if (e.key === "ArrowDown") movePacman("down");
-  if (e.key === "ArrowLeft") movePacman("left");
-  if (e.key === "ArrowRight") movePacman("right");
-});
-
- 
-  </script>
+  // Event listeners
+  document.getElementById("up").addEventListener("click", () => movePacman("up"));
+  document.getElementById("down").addEventListener("click", () => movePacman("down"));
+  document.getElementById("left").addEventListener("click", () => movePacman("left"));
+  document.getElementById("right").addEventListener("click", () => movePacman("right"));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") movePacman("up");
+    if (e.key === "ArrowDown") movePacman("down");
+    if (e.key === "ArrowLeft") movePacman("left");
+    if (e.key === "ArrowRight") movePacman("right");
+  });
+</script>
 </body>
 </html>
