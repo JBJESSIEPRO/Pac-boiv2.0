@@ -265,6 +265,13 @@
     document.getElementById("left").addEventListener("click", () => movePacman("left"));
     document.getElementById("right").addEventListener("click", () => movePacman("right"));
 
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") movePacman("up");
+  if (e.key === "ArrowDown") movePacman("down");
+  if (e.key === "ArrowLeft") movePacman("left");
+  if (e.key === "ArrowRight") movePacman("right");
+});
+
     // Start game on load
     window.onload = () => {
       updateHUD();
