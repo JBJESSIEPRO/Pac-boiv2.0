@@ -9,23 +9,41 @@
   #hud { display: flex; gap: 30px; margin-top: 10px; font-size: 18px; }
   #gameArea { width: 400px; height: 400px; background-color: #000; border: 3px solid #fff; margin-top: 10px; position: relative; overflow: hidden; }
   #pacman, #ghost, .pellet, .alien { width: 40px; height: 40px; position: absolute; transition: transform 0.2s; }
-  #pacman { background-color: yellow; border-radius: 50%; z-index: 2; }
+  #pacman { background-color: yellow; border-radius: 50%; z-index: 3; }
   #ghost { background-color: red; border-radius: 50%; z-index: 2; }
   .pellet { background-color: white; border-radius: 50%; z-index: 1; }
+  
   @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); box-shadow: 0 0 15px #00ff00; } 100% { transform: scale(1); } }
   .alien { background-color: green; border-radius: 50%; z-index: 2; animation: pulse 0.8s infinite ease-in-out; }
+
   .controls { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
   .row { display: flex; justify-content: center; }
-  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; }
-  #gameOver, #pauseMenu, #customPopup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.9); padding: 25px; border-radius: 15px; display: none; z-index: 100; text-align: center; }
+  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; margin: 2px; }
+
+  #gameOver, #pauseMenu, #customPopup {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0,0,0,0.95);
+    padding: 25px; border-radius: 15px;
+    display: none; z-index: 100; text-align: center;
+  }
   #gameOver, #pauseMenu { color: red; font-size: 24px; border: 2px solid red; }
   #customPopup { border: 2px solid #00ffff; width: 260px; color: white; }
+  
   .popup-btn { margin-top: 15px; background: #00ffff; color: black; font-size: 18px; font-weight: bold; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+
   #homeScreen, #mapSelectScreen, #leaderboardScreen { text-align: center; margin-top: 80px; }
   .logo { font-size: 60px; color: white; text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #0088ff; }
   .tagline { font-size: 18px; margin-bottom: 30px; color: #ccc; }
-  .menuButtons button, #mapSelectScreen button, #leaderboardScreen button { width: 250px; min-height: 60px; font-size: 18px; display: block; margin: 15px auto; padding: 12px 10px; background: transparent; color: white; border: 2px solid #00ffff; border-radius: 8px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+  
+  .menuButtons button, #mapSelectScreen button, #leaderboardScreen button {
+    width: 250px; min-height: 60px; font-size: 18px; display: block; margin: 15px auto; padding: 12px 10px;
+    background: transparent; color: white; border: 2px solid #00ffff; border-radius: 8px; cursor: pointer;
+    transition: 0.3s; text-transform: uppercase;
+  }
   .menuButtons button:hover { background: rgba(0,255,255,0.1); box-shadow: 0 0 15px #00ffff; transform: scale(1.05); }
+
+  .theme-option { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
   #alienText { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #00ff00; color: black; padding: 8px 16px; border-radius: 6px; display: none; font-weight: bold; z-index: 15; text-align: center; width: 80%; }
 </style>
 </head>
@@ -58,15 +76,34 @@
 <div id="hud" style="display:none;">
   <div>Score: <span id="score">0</span></div>
   <div>Time: <span id="timer">0</span>s</div>
-  <button onclick="pauseGame()">PAUSE</button>
+  <button onclick="pauseGame()" style="background:#444; color:white; border:none; padding:5px 10px; border-radius:5px;">PAUSE</button>
 </div>
 
 <div id="gameArea" style="display:none;">
-  <div id="pacman"></div><div id="ghost"></div>
+  <div id="pacman"></div>
+  <div id="ghost"></div>
   <div id="alienText">Evolution Triggered!</div>
-  <div id="gameOver">Game Over!<br/><button class="popup-btn" style="background:red; color:white;" onclick="restartGame()">Restart</button><button class="popup-btn" style="background:red; color:white;" onclick="goHome()">Exit</button></div>
-  <div id="pauseMenu"><h2 style="color:white; margin-top:0;">Paused</h2><button class="popup-btn" onclick="resumeGame()">Resume</button><button class="popup-btn" onclick="restartGame()">Restart</button><button class="popup-btn" onclick="goHome()">Exit</button></div>
-  <div id="customPopup"><h3 style="margin-top:0; color:#00ffff;">THEME LAB</h3><div class="theme-option">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div><div class="theme-option">GHOST <input type="color" id="ghostColor" value="#ff0000" onchange="applyColors()"></div><div class="theme-option">ARENA <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div><button class="popup-btn" onclick="closeCustomization()">SAVE & CLOSE</button></div>
+  
+  <div id="gameOver">
+    Game Over!<br/>
+    <button class="popup-btn" style="background:red; color:white;" onclick="restartGame()">Restart</button>
+    <button class="popup-btn" style="background:red; color:white;" onclick="goHome()">Exit</button>
+  </div>
+  
+  <div id="pauseMenu">
+    <h2 style="color:white; margin-top:0;">Paused</h2>
+    <button class="popup-btn" onclick="resumeGame()">Resume</button>
+    <button class="popup-btn" onclick="restartGame()">Restart</button>
+    <button class="popup-btn" onclick="goHome()">Exit</button>
+  </div>
+
+  <div id="customPopup">
+    <h3 style="margin-top:0; color:#00ffff;">THEME LAB</h3>
+    <div class="theme-option">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div>
+    <div class="theme-option">GHOST <input type="color" id="ghostColor" value="#ff0000" onchange="applyColors()"></div>
+    <div class="theme-option">ARENA <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div>
+    <button class="popup-btn" onclick="closeCustomization()">SAVE & CLOSE</button>
+  </div>
 </div>
 
 <div class="controls" style="display:none;">
@@ -82,7 +119,7 @@ let pacmanPos = { x: 0, y: 0 }, ghostPos = { x: 360, y: 360 }, ghostInterval, ti
 function updatePosition(){
   pacman.style.transform = `translate(${pacmanPos.x}px,${pacmanPos.y}px)`;
   ghost.style.transform = `translate(${ghostPos.x}px,${ghostPos.y}px)`;
-  aliens.forEach(a=>{ if(a.el) a.el.style.transform=`translate(${a.pos.x}px,${a.pos.y}px)`; });
+  aliens.forEach(a => { if(a.el) a.el.style.transform = `translate(${a.pos.x}px,${a.pos.y}px)`; });
 }
 
 function movePacman(dir){
@@ -167,7 +204,9 @@ function spawnAlien(){
   let safeX, safeY;
   do { safeX = Math.floor(Math.random()*10)*40; safeY = Math.floor(Math.random()*10)*40; } 
   while (Math.abs(safeX - pacmanPos.x) < 80 && Math.abs(safeY - pacmanPos.y) < 80);
-  const aEl=document.createElement("div"); aEl.className="alien"; gameArea.appendChild(aEl);
+  const aEl=document.createElement("div"); aEl.className="alien"; 
+  aEl.style.transform = `translate(${safeX}px,${safeY}px)`; // Force render at safe spot
+  gameArea.appendChild(aEl);
   aliens.push({el:aEl, pos:{x:safeX, y:safeY}});
 }
 
@@ -181,13 +220,18 @@ function openCustomization() { document.getElementById("homeScreen").style.displ
 function closeCustomization() { customPopup.style.display = "none"; document.getElementById("gameArea").style.display = "none"; document.getElementById("homeScreen").style.display = "block"; }
 
 function applyColors() {
-  pacman.style.backgroundColor = document.getElementById("pacColor").value;
-  ghost.style.backgroundColor = document.getElementById("ghostColor").value;
-  gameArea.style.borderColor = document.getElementById("borderColor").value;
+  const p = document.getElementById("pacColor").value, g = document.getElementById("ghostColor").value, b = document.getElementById("borderColor").value;
+  pacman.style.backgroundColor = p; ghost.style.backgroundColor = g; gameArea.style.borderColor = b;
+  localStorage.setItem("pacTheme", p); localStorage.setItem("ghostTheme", g); localStorage.setItem("borderTheme", b);
 }
 
 function loadTheme(){
-  if(localStorage.getItem("pacTheme")){ applyColors(); }
+  if(localStorage.getItem("pacTheme")){
+    document.getElementById("pacColor").value = localStorage.getItem("pacTheme");
+    document.getElementById("ghostColor").value = localStorage.getItem("ghostTheme");
+    document.getElementById("borderColor").value = localStorage.getItem("borderTheme");
+    applyColors();
+  }
 }
 
 function saveHighScore(){
