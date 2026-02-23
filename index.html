@@ -12,6 +12,7 @@
     background-color: #111;
     color: white;
     font-family: sans-serif;
+    overflow: hidden;
   }
 
   #hud {
@@ -19,6 +20,7 @@
     gap: 30px;
     margin-top: 10px;
     font-size: 18px;
+    align-items: center;
   }
 
   #gameArea {
@@ -38,44 +40,55 @@
     transition: transform 0.2s;
   }
 
-  #pacman { background-color: yellow; border-radius: 50%; z-index: 2; }
+  #pacman { background-color: yellow; border-radius: 50%; z-index: 3; }
   #ghost { background-color: red; border-radius: 50%; z-index: 2; }
   .pellet { background-color: white; border-radius: 50%; z-index: 1; }
-  .alien { background-color: green; border-radius: 50%; z-index: 2; }
+  
+  /* Pulse Animation for Aliens */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); box-shadow: 0 0 15px #00ff00; }
+    100% { transform: scale(1); }
+  }
+  .alien { background-color: green; border-radius: 50%; z-index: 2; animation: pulse 0.8s infinite ease-in-out; }
 
   .controls { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
   .row { display: flex; justify-content: center; }
-  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; }
+  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; margin: 2px; }
 
-  #gameOver, #pauseMenu {
+  #gameOver, #pauseMenu, #customPopup {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0,0,0,0.85);
-    color: red; font-size: 24px; text-align: center;
-    padding: 20px; border: 2px solid red; border-radius: 10px;
-    display: none; z-index: 10;
+    background-color: rgba(0,0,0,0.9);
+    padding: 20px; border-radius: 10px;
+    display: none; z-index: 100; text-align: center;
   }
-  #gameOver button, #pauseMenu button {
-    margin-top: 10px; background: red; color: white; font-size: 18px;
-    padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;
+  
+  #gameOver, #pauseMenu { color: red; font-size: 24px; border: 2px solid red; }
+  #customPopup { border: 2px solid #00ffff; width: 220px; }
+  
+  button.menu-btn {
+    margin-top: 10px; background: #444; color: white; font-size: 16px;
+    padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%;
   }
 
-  #homeScreen, #mapSelectScreen, #leaderboardScreen { text-align: center; margin-top: 80px; }
-  .logo { font-size: 60px; color: white; text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #0088ff; }
+  #homeScreen, #mapSelectScreen, #leaderboardScreen { text-align: center; margin-top: 50px; }
+  .logo { font-size: 60px; color: white; text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #0088ff; margin-bottom: 5px; }
   .tagline { font-size: 18px; margin-bottom: 30px; color: #ccc; }
+  
   .menuButtons button, #mapSelectScreen button, #leaderboardScreen button {
-    width: 200px; min-height: 60px; font-size: 18px; display: block; margin: 15px auto; padding: 12px 10px;
+    width: 220px; min-height: 50px; font-size: 18px; display: block; margin: 10px auto; padding: 10px;
     background: #111; color: white; border: 2px solid #00ffff; border-radius: 8px; cursor: pointer;
-    transition: 0.3s; white-space: normal; text-align: center;
+    transition: 0.3s;
   }
   .menuButtons button:hover, #mapSelectScreen button:hover, #leaderboardScreen button:hover { background: #00ffff; color: black; box-shadow: 0 0 15px #00ffff; transform: scale(1.05); }
-  .menuTitle { font-size: 32px; margin-bottom: 20px; text-shadow: 0 0 10px #ff00ff; }
 
+  .theme-option { display: flex; justify-content: space-between; margin: 10px 0; align-items: center; color: white; }
   /* Alien notification */
   #alienText { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #00ff00; color: black; padding: 8px 16px; border-radius: 6px; display: none; font-weight: bold; z-index: 15; }
 </style>
 </head>
-<body>
+<body onload="loadTheme()">
 
 <!-- HOME SCREEN -->
 <div id="homeScreen">
@@ -90,9 +103,8 @@
 <!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" style="display:none;">
   <h2 class="menuTitle">SELECT MAP</h2>
-  <button onclick="selectMap('classic')">Classic Arena<br><span id="classicHighScore">High Score: 0</span></button>
-  <button onclick="selectMap('hard')">Hard Mode<br><span id="mazeHighScore">High Score: 0</span></button>
-  <br>
+  <button onclick="selectMap('classic')">Classic Arena<br><small id="classicHighScore">High Score: 0</small></button>
+  <button onclick="selectMap('hard')">Hard Mode<br><small id="mazeHighScore">High Score: 0</small></button>
   <button onclick="goHome()">BACK</button>
 </div>
 
@@ -101,34 +113,46 @@
   <h2 class="menuTitle">LEADERBOARD</h2>
   <p>Classic Arena: <span id="classicBoard">0</span></p>
   <p>Hard Mode: <span id="mazeBoard">0</span></p>
+  <button onclick="openCustomization()" style="border-color: #ff00ff;">CUSTOMIZE</button>
   <button onclick="goHome()">BACK</button>
 </div>
 
 <div id="hud" style="display:none;">
   <div>Score: <span id="score">0</span></div>
   <div>Time: <span id="timer">0</span>s</div>
-  <button onclick="pauseGame()">PAUSE</button>
+  <button onclick="pauseGame()" style="background:#444; color:white; border:none; padding:5px 10px; border-radius:5px;">PAUSE</button>
 </div>
 
 <div id="gameArea" style="display:none;">
   <div id="pacman"></div>
   <div id="ghost"></div>
+  <div id="alienText">New Alien Appeared!</div>
+  
   <div id="gameOver">
     Game Over!<br/>
-    <button onclick="restartGame()">Restart</button>
-    <button onclick="goHome()">Exit</button>
+    <button class="menu-btn" style="background:red;" onclick="restartGame()">Restart</button>
+    <button class="menu-btn" style="background:red;" onclick="goHome()">Exit</button>
   </div>
+  
   <div id="pauseMenu">
-    <h2 style="color:white;">Paused</h2>
-    <button onclick="resumeGame()">Resume</button>
-    <button onclick="restartGame()">Restart</button>
-    <button onclick="goHome()">Exit</button>
+    <h2 style="color:white; margin-top:0;">Paused</h2>
+    <button class="menu-btn" onclick="resumeGame()">Resume</button>
+    <button class="menu-btn" onclick="restartGame()">Restart</button>
+    <button class="menu-btn" onclick="goHome()">Exit</button>
   </div>
-  <div id="alienText">New Alien Appeared!</div>
+
+  <!-- CUSTOMIZATION POPUP -->
+  <div id="customPopup">
+    <h3 style="color:#00ffff; margin-top:0;">Theme Colors</h3>
+    <div class="theme-option">Pac-Boi: <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div>
+    <div class="theme-option">Ghost: <input type="color" id="ghostColor" value="#ff0000" onchange="applyColors()"></div>
+    <div class="theme-option">Arena: <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div>
+    <button class="menu-btn" onclick="closeCustomization()">Save & Close</button>
+  </div>
 </div>
 
 <!-- TOUCH CONTROLS -->
-<div class="controls">
+<div class="controls" style="display:none;">
   <div class="row"><button id="up">↑</button></div>
   <div class="row"><button id="left">←</button><button id="down">↓</button><button id="right">→</button></div>
 </div>
@@ -143,6 +167,7 @@ const scoreDisplay = document.getElementById("score");
 const timerDisplay = document.getElementById("timer");
 const controls = document.querySelector(".controls");
 const alienText = document.getElementById("alienText");
+const customPopup = document.getElementById("customPopup");
 
 let pacmanPos = { x: 0, y: 0 };
 let ghostPos = { x: 360, y: 360 };
@@ -162,7 +187,7 @@ function updatePosition(){
 }
 
 function movePacman(dir){
-  if(paused) return;
+  if(paused || gameOverText.style.display === "block") return;
   if(dir==="up" && pacmanPos.y>0) pacmanPos.y-=40;
   if(dir==="down" && pacmanPos.y<360) pacmanPos.y+=40;
   if(dir==="left" && pacmanPos.x>0) pacmanPos.x-=40;
@@ -190,37 +215,10 @@ function checkCollision(){
 }
 
 function endGame(){
-  saveHighScore(); gameOverText.style.display="block";
-  clearInterval(ghostInterval); clearInterval(timerInterval);
-}
-
-function saveHighScore(){
-  const key = currentMap+"HighScore";
-  const best = localStorage.getItem(key)||0;
-  if(score>best) localStorage.setItem(key,score);
-}
-
-function updateHighScores(){
-  const classic = localStorage.getItem("classicHighScore")||0;
-  const hard = localStorage.getItem("mazeHighScore")||0;
-  document.getElementById("classicHighScore").innerText="High Score: "+classic;
-  document.getElementById("mazeHighScore").innerText="High Score: "+hard;
-  document.getElementById("classicBoard").innerText=classic;
-  document.getElementById("mazeBoard").innerText=hard;
-}
-
-function restartGame(){
-  paused=false; aliens.forEach(a=>a.el.remove()); aliens=[];
-  pacmanPos={x:0,y:0}; ghostPos={x:360,y:360};
-  score=0; timeElapsed=0; updateHUD(); updatePosition();
-  gameOverText.style.display="none"; pauseMenu.style.display="none";
-  spawnPellet(); clearInterval(ghostInterval); clearInterval(timerInterval);
-  ghostInterval=setInterval(()=>{
-    moveGhostSmart({pos:ghostPos});
-    aliens.forEach(a=>moveGhostSmart(a));
-    checkAlienSpawn();
-  },500);
-  timerInterval=setInterval(()=>{ if(!paused){timeElapsed++;updateHUD();} },1000);
+  saveHighScore(); 
+  gameOverText.style.display="block";
+  clearInterval(ghostInterval); 
+  clearInterval(timerInterval);
 }
 
 function spawnPellet(){
@@ -243,26 +241,22 @@ function checkPelletPickup(){
 
 function freezeGhost(){ ghostFrozen=true; setTimeout(()=>{ghostFrozen=false;},5000); }
 
-function updateHUD(){ scoreDisplay.textContent=score; timerDisplay.textContent=timeElapsed; }
+/* ALIEN SPAWN FOR HARD MODE */
+function spawnAlien(){
+  let safeX, safeY, attempts = 0;
+  // Safety check: Don't spawn on top of Pac-Boi
+  do {
+    safeX = Math.floor(Math.random()*10)*40;
+    safeY = Math.floor(Math.random()*10)*40;
+    attempts++;
+  } while (Math.abs(safeX - pacmanPos.x) < 80 && Math.abs(safeY - pacmanPos.y) < 80 && attempts < 50);
 
-function showMapSelect(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("mapSelectScreen").style.display="block"; controls.style.display="none"; updateHighScores(); }
-function showLeaderboard(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="block"; controls.style.display="none"; updateHighScores(); }
-function goHome(){ paused=false; clearInterval(ghostInterval); clearInterval(timerInterval); document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="none"; document.getElementById("gameArea").style.display="none"; document.getElementById("hud").style.display="none"; controls.style.display="none"; document.getElementById("homeScreen").style.display="block"; }
-
-function selectMap(map){
-  currentMap=map;
-  document.getElementById("mapSelectScreen").style.display="none";
-  document.getElementById("gameArea").style.display="block";
-  document.getElementById("hud").style.display="flex";
-  controls.style.display="flex";
-  restartGame();
+  const aEl=document.createElement("div"); aEl.className="alien"; gameArea.appendChild(aEl);
+  aliens.push({el:aEl, pos:{x:safeX, y:safeY}});
+  alienText.style.display="block";
+  setTimeout(()=>{alienText.style.display="none";},2000);
 }
 
-/* PAUSE FUNCTIONS */
-function pauseGame(){ paused=true; pauseMenu.style.display="block"; }
-function resumeGame(){ paused=false; pauseMenu.style.display="none"; }
-
-/* ALIEN SPAWN FOR HARD MODE */
 function checkAlienSpawn(){
   if(currentMap!=="hard") return;
   // First alien at 200
@@ -270,11 +264,72 @@ function checkAlienSpawn(){
   // Second alien at 1000
   if(score>=1000 && aliens.length===1) spawnAlien();
 }
-function spawnAlien(){
-  const aEl=document.createElement("div"); aEl.className="alien"; gameArea.appendChild(aEl);
-  aliens.push({el:aEl, pos:{x:Math.floor(Math.random()*10)*40, y:Math.floor(Math.random()*10)*40}});
-  alienText.style.display="block";
-  setTimeout(()=>{alienText.style.display="none";},2000);
+
+function restartGame(){
+  paused=false; 
+  aliens.forEach(a=>a.el.remove()); 
+  aliens=[];
+  pacmanPos={x:0,y:0}; ghostPos={x:360,y:360};
+  score=0; timeElapsed=0; updateHUD(); updatePosition();
+  gameOverText.style.display="none"; pauseMenu.style.display="none";
+  spawnPellet(); 
+  clearInterval(ghostInterval); clearInterval(timerInterval);
+  ghostInterval=setInterval(()=>{
+    moveGhostSmart({pos:ghostPos});
+    aliens.forEach(a=>moveGhostSmart(a));
+    checkAlienSpawn();
+  },500);
+  timerInterval=setInterval(()=>{ if(!paused){timeElapsed++;updateHUD();} },1000);
+}
+
+/* UI & SCREEN FUNCTIONS */
+function showMapSelect(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("mapSelectScreen").style.display="block"; updateHighScores(); }
+function showLeaderboard(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="block"; updateHighScores(); }
+function goHome(){ paused=false; clearInterval(ghostInterval); clearInterval(timerInterval); document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="none"; document.getElementById("gameArea").style.display="none"; document.getElementById("hud").style.display="none"; controls.style.display="none"; document.getElementById("homeScreen").style.display="block"; }
+function selectMap(map){ currentMap=map; document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("gameArea").style.display="block"; document.getElementById("hud").style.display="flex"; controls.style.display="flex"; restartGame(); }
+function pauseGame(){ paused=true; pauseMenu.style.display="block"; }
+function resumeGame(){ paused=false; pauseMenu.style.display="none"; }
+function updateHUD(){ scoreDisplay.textContent=score; timerDisplay.textContent=timeElapsed; }
+
+/* CUSTOMIZATION & THEMES */
+function openCustomization(){ customPopup.style.display="block"; }
+function closeCustomization(){ customPopup.style.display="none"; }
+function applyColors(){
+  const pCol = document.getElementById("pacColor").value;
+  const gCol = document.getElementById("ghostColor").value;
+  const bCol = document.getElementById("borderColor").value;
+  
+  pacman.style.backgroundColor = pCol;
+  ghost.style.backgroundColor = gCol;
+  gameArea.style.borderColor = bCol;
+  
+  // Save choices
+  localStorage.setItem("pacTheme", pCol);
+  localStorage.setItem("ghostTheme", gCol);
+  localStorage.setItem("borderTheme", bCol);
+}
+
+function loadTheme(){
+  if(localStorage.getItem("pacTheme")){
+    document.getElementById("pacColor").value = localStorage.getItem("pacTheme");
+    document.getElementById("ghostColor").value = localStorage.getItem("ghostTheme");
+    document.getElementById("borderColor").value = localStorage.getItem("borderTheme");
+    applyColors();
+  }
+}
+
+/* DATA & LOCAL STORAGE */
+function saveHighScore(){
+  const key = currentMap==="classic" ? "classicHighScore" : "mazeHighScore";
+  if(score > (localStorage.getItem(key)||0)) localStorage.setItem(key, score);
+}
+function updateHighScores(){
+  const c = localStorage.getItem("classicHighScore")||0;
+  const h = localStorage.getItem("mazeHighScore")||0;
+  document.getElementById("classicHighScore").innerText="High Score: "+c;
+  document.getElementById("mazeHighScore").innerText="High Score: "+h;
+  document.getElementById("classicBoard").innerText=c;
+  document.getElementById("mazeBoard").innerText=h;
 }
 
 /* TOUCH CONTROLS */
