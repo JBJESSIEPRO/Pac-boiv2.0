@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0""")/>>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Pac-Boi</title>
 <style>
   body {
@@ -43,6 +43,7 @@
   #ghost { background-color: red; border-radius: 50%; z-index: 2; }
   .pellet { background-color: white; border-radius: 50%; z-index: 1; }
   
+  /* Alien pulse animation */
   @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.15); box-shadow: 0 0 15px #00ff00; }
@@ -87,6 +88,7 @@
 </head>
 <body onload="loadTheme()">
 
+<!-- HOME SCREEN -->
 <div id="homeScreen">
   <h1 class="logo">PAC-BOI</h1>
   <p class="tagline">Collect. Freeze. Survive.</p>
@@ -97,6 +99,7 @@
   </div>
 </div>
 
+<!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" style="display:none;">
   <h2 style="text-shadow: 0 0 10px #ff00ff;">SELECT MAP</h2>
   <button onclick="selectMap('classic')">Classic Arena<br><small id="classicHighScore">High Score: 0</small></button>
@@ -104,6 +107,7 @@
   <button onclick="goHome()">BACK</button>
 </div>
 
+<!-- LEADERBOARD SCREEN -->
 <div id="leaderboardScreen" style="display:none;">
   <h2 style="text-shadow: 0 0 10px #ff00ff;">LEADERBOARD</h2>
   <p>Classic Arena: <span id="classicBoard">0</span></p>
@@ -135,6 +139,7 @@
     <button class="popup-btn" onclick="goHome()">Exit</button>
   </div>
 
+  <!-- CUSTOMIZATION POPUP -->
   <div id="customPopup">
     <h3 style="margin-top:0; color:#00ffff;">THEME LAB</h3>
     <div class="theme-option">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div>
@@ -144,6 +149,7 @@
   </div>
 </div>
 
+<!-- TOUCH CONTROLS -->
 <div class="controls" style="display:none;">
   <div class="row"><button id="up">↑</button></div>
   <div class="row"><button id="left">←</button><button id="down">↓</button><button id="right">→</button></div>
@@ -189,13 +195,13 @@ function movePacman(dir){
   updatePosition(); checkCollision(); checkPelletPickup();
 }
 
-function moveGhostSmart(g, index){
+function moveGhostSmart(g, index){ // g can be ghost or alien
   if(ghostFrozen || paused) return;
   
   let moveX = g.pos.x < pacmanPos.x ? 40 : -40;
   let moveY = g.pos.y < pacmanPos.y ? 40 : -40;
 
-  // 600 Score (Hard Mode Only): Hive Mind Logic
+  // Evolution: Hive Mind Logic
   if(currentMap === "hard" && isHiveMind){
     if(index % 2 === 0){
       if(g.pos.x !== pacmanPos.x) g.pos.x += moveX;
@@ -205,7 +211,7 @@ function moveGhostSmart(g, index){
       else g.pos.x += moveX;
     }
   } else {
-    // Normal / Classic logic
+    // Normal / Classic Pursuit
     if(Math.random()<0.5){
       if(g.pos.x !== pacmanPos.x) g.pos.x += moveX;
     } else {
@@ -264,6 +270,7 @@ function startGhostLoop(){
   clearInterval(ghostInterval);
   ghostInterval=setInterval(()=>{
     moveGhostSmart({pos:ghostPos}, 0);
+    // Fixed: Now correctly moves every alien in the array
     aliens.forEach((a, i)=>moveGhostSmart(a, i+1));
     checkMilestones();
   }, gameSpeed);
@@ -295,24 +302,29 @@ function updateHUD(){ scoreDisplay.textContent=score; timerDisplay.textContent=t
 function checkMilestones(){
   if(currentMap!=="hard") return;
 
+  // 200 Score - 1st Alien
   if(score === 200 && aliens.length === 0) {
     notify("NEW ALIEN APPEARED!");
     spawnAlien();
   }
+  // 400 Score - Speed Boost
   if(score === 400 && gameSpeed === 500) {
     notify("SPEED BOOST: EVERYONE FASTER!");
     gameSpeed = 300;
     startGhostLoop();
   }
+  // 600 Score - Hive Mind
   if(score === 600 && !isHiveMind) {
     notify("HIVE MIND: THEY ARE WORKING TOGETHER!");
     isHiveMind = true;
   }
+  // 800 Score - Slow Mo
   if(score === 800 && gameSpeed === 300) {
     notify("THE SLOW-MO PAIN BEGINS...");
     gameSpeed = 700;
     startGhostLoop();
   }
+  // 1000 Score - 2nd Alien (3 Enemies Total)
   if(score === 1000 && aliens.length === 1) {
     notify("THIRD ALIEN ARRIVES!");
     spawnAlien();
@@ -327,6 +339,7 @@ function notify(txt){
 
 function spawnAlien(){
   let safeX, safeY, attempts = 0;
+  // Safety: Don't spawn on Pac-Boi
   do {
     safeX = Math.floor(Math.random()*10)*40;
     safeY = Math.floor(Math.random()*10)*40;
@@ -354,6 +367,7 @@ function selectMap(map){
 function pauseGame(){ paused=true; pauseMenu.style.display="block"; }
 function resumeGame(){ paused=false; pauseMenu.style.display="none"; }
 
+/* Customization */
 function openCustomization() { 
   document.getElementById("homeScreen").style.display = "none";
   document.getElementById("gameArea").style.display = "block";
