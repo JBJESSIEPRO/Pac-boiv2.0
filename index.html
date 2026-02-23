@@ -43,7 +43,6 @@
   #ghost { background-color: red; border-radius: 50%; z-index: 2; }
   .pellet { background-color: white; border-radius: 50%; z-index: 1; }
   
-  /* Alien pulse animation */
   @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.15); box-shadow: 0 0 15px #00ff00; }
@@ -57,72 +56,56 @@
 
   #gameOver, #pauseMenu, #customPopup {
     position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0,0,0,0.85);
-    color: red; font-size: 24px; text-align: center;
-    padding: 20px; border: 2px solid red; border-radius: 10px;
-    display: none; z-index: 100;
+    transform: translate(-50%, -50%); /* Centers element perfectly in viewport */
+    background-color: rgba(0,0,0,0.9);
+    padding: 25px; border-radius: 15px;
+    display: none; z-index: 100; text-align: center;
   }
   
-  /* Themed Customization Popup */
-  #customPopup { border-color: #00ffff; color: white; width: 250px; }
+  #gameOver, #pauseMenu { color: red; font-size: 24px; border: 2px solid red; }
+  #customPopup { border: 2px solid #00ffff; width: 260px; color: white; }
   
-  #gameOver button, #pauseMenu button, .popup-btn {
-    margin-top: 10px; background: red; color: white; font-size: 18px;
-    padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;
+  .popup-btn {
+    margin-top: 15px; background: #00ffff; color: black; font-size: 18px; font-weight: bold;
+    padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%;
   }
-  .popup-btn { background: #00ffff; color: black; width: 100%; font-weight: bold; }
 
   #homeScreen, #mapSelectScreen, #leaderboardScreen { text-align: center; margin-top: 80px; }
   .logo { font-size: 60px; color: white; text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #0088ff; }
   .tagline { font-size: 18px; margin-bottom: 30px; color: #ccc; }
   
-  /* Neon Button Styling from your image */
   .menuButtons button, #mapSelectScreen button, #leaderboardScreen button {
     width: 250px; min-height: 60px; font-size: 18px; display: block; margin: 15px auto; padding: 12px 10px;
     background: transparent; color: white; border: 2px solid #00ffff; border-radius: 8px; cursor: pointer;
-    transition: 0.3s; white-space: normal; text-align: center;
-    text-transform: uppercase; letter-spacing: 1px;
+    transition: 0.3s; text-transform: uppercase;
   }
-  .menuButtons button:hover, #mapSelectScreen button:hover, #leaderboardScreen button:hover { 
-    background: rgba(0, 255, 255, 0.1); 
-    box-shadow: 0 0 15px #00ffff; 
-    transform: scale(1.05); 
-  }
-  
-  .menuTitle { font-size: 32px; margin-bottom: 20px; text-shadow: 0 0 10px #ff00ff; }
-  .theme-option { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; font-size: 18px; }
+  .menuButtons button:hover, #mapSelectScreen button:hover, #leaderboardScreen button:hover { background: rgba(0,255,255,0.1); box-shadow: 0 0 15px #00ffff; transform: scale(1.05); }
 
-  /* Alien notification */
+  .theme-option { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
   #alienText { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #00ff00; color: black; padding: 8px 16px; border-radius: 6px; display: none; font-weight: bold; z-index: 15; }
 </style>
 </head>
 <body onload="loadTheme()">
 
-<!-- HOME SCREEN -->
 <div id="homeScreen">
   <h1 class="logo">PAC-BOI</h1>
   <p class="tagline">Collect. Freeze. Survive.</p>
   <div class="menuButtons">
     <button onclick="showMapSelect()">PLAY</button>
     <button onclick="showLeaderboard()">LEADERBOARD</button>
-    <!-- CUSTOMIZE BUTTON ADDED UNDER LEADERBOARD -->
     <button onclick="openCustomization()" style="border-color: #ff00ff;">CUSTOMIZE</button>
   </div>
 </div>
 
-<!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" style="display:none;">
-  <h2 class="menuTitle">SELECT MAP</h2>
-  <button onclick="selectMap('classic')">Classic Arena<br><span id="classicHighScore">High Score: 0</span></button>
-  <button onclick="selectMap('hard')">Hard Mode<br><span id="mazeHighScore">High Score: 0</span></button>
-  <br>
+  <h2 style="text-shadow: 0 0 10px #ff00ff;">SELECT MAP</h2>
+  <button onclick="selectMap('classic')">Classic Arena<br><small id="classicHighScore">High Score: 0</small></button>
+  <button onclick="selectMap('hard')">Hard Mode<br><small id="mazeHighScore">High Score: 0</small></button>
   <button onclick="goHome()">BACK</button>
 </div>
 
-<!-- LEADERBOARD SCREEN -->
 <div id="leaderboardScreen" style="display:none;">
-  <h2 class="menuTitle">LEADERBOARD</h2>
+  <h2 style="text-shadow: 0 0 10px #ff00ff;">LEADERBOARD</h2>
   <p>Classic Arena: <span id="classicBoard">0</span></p>
   <p>Hard Mode: <span id="mazeBoard">0</span></p>
   <button onclick="goHome()">BACK</button>
@@ -137,19 +120,21 @@
 <div id="gameArea" style="display:none;">
   <div id="pacman"></div>
   <div id="ghost"></div>
+  <div id="alienText">New Alien Appeared!</div>
+  
   <div id="gameOver">
     Game Over!<br/>
-    <button onclick="restartGame()">Restart</button>
-    <button onclick="goHome()">Exit</button>
-  </div>
-  <div id="pauseMenu">
-    <h2 style="color:white;">Paused</h2>
-    <button onclick="resumeGame()">Resume</button>
-    <button onclick="restartGame()">Restart</button>
-    <button onclick="goHome()">Exit</button>
+    <button class="popup-btn" style="background:red; color:white;" onclick="restartGame()">Restart</button>
+    <button class="popup-btn" style="background:red; color:white;" onclick="goHome()">Exit</button>
   </div>
   
-  <!-- CUSTOMIZATION POPUP -->
+  <div id="pauseMenu">
+    <h2 style="color:white; margin-top:0;">Paused</h2>
+    <button class="popup-btn" onclick="resumeGame()">Resume</button>
+    <button class="popup-btn" onclick="restartGame()">Restart</button>
+    <button class="popup-btn" onclick="goHome()">Exit</button>
+  </div>
+
   <div id="customPopup">
     <h3 style="margin-top:0; color:#00ffff;">THEME LAB</h3>
     <div class="theme-option">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div>
@@ -157,11 +142,8 @@
     <div class="theme-option">ARENA <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div>
     <button class="popup-btn" onclick="closeCustomization()">SAVE & CLOSE</button>
   </div>
-  
-  <div id="alienText">New Alien Appeared!</div>
 </div>
 
-<!-- TOUCH CONTROLS -->
 <div class="controls" style="display:none;">
   <div class="row"><button id="up">↑</button></div>
   <div class="row"><button id="left">←</button><button id="down">↓</button><button id="right">→</button></div>
@@ -188,7 +170,7 @@ let score = 0;
 let timeElapsed = 0;
 let currentMap = "classic";
 let paused = false;
-let aliens = []; // extra aliens
+let aliens = [];
 
 function updatePosition(){
   pacman.style.transform = `translate(${pacmanPos.x}px,${pacmanPos.y}px)`;
@@ -197,7 +179,7 @@ function updatePosition(){
 }
 
 function movePacman(dir){
-  if(paused) return;
+  if(paused || gameOverText.style.display === "block") return;
   if(dir==="up" && pacmanPos.y>0) pacmanPos.y-=40;
   if(dir==="down" && pacmanPos.y<360) pacmanPos.y+=40;
   if(dir==="left" && pacmanPos.x>0) pacmanPos.x-=40;
@@ -205,7 +187,7 @@ function movePacman(dir){
   updatePosition(); checkCollision(); checkPelletPickup();
 }
 
-function moveGhostSmart(g){ // g can be ghost or alien
+function moveGhostSmart(g){
   if(ghostFrozen || paused) return;
   if(Math.random()<0.5){
     if(g.pos.x<pacmanPos.x && g.pos.x<360) g.pos.x+=40;
@@ -225,23 +207,25 @@ function checkCollision(){
 }
 
 function endGame(){
-  saveHighScore(); gameOverText.style.display="block";
-  clearInterval(ghostInterval); clearInterval(timerInterval);
+  saveHighScore(); 
+  gameOverText.style.display="block";
+  clearInterval(ghostInterval); 
+  clearInterval(timerInterval);
 }
 
 function saveHighScore(){
-  const key = currentMap+"HighScore";
-  const best = localStorage.getItem(key)||0;
-  if(score>best) localStorage.setItem(key,score);
+  const key = currentMap === "classic" ? "classicHighScore" : "mazeHighScore";
+  const best = parseInt(localStorage.getItem(key)) || 0;
+  if(score > best) localStorage.setItem(key, score);
 }
 
 function updateHighScores(){
-  const classic = localStorage.getItem("classicHighScore")||0;
-  const hard = localStorage.getItem("mazeHighScore")||0;
-  document.getElementById("classicHighScore").innerText="High Score: "+classic;
-  document.getElementById("mazeHighScore").innerText="High Score: "+hard;
-  document.getElementById("classicBoard").innerText=classic;
-  document.getElementById("mazeBoard").innerText=hard;
+  const c = localStorage.getItem("classicHighScore") || 0;
+  const h = localStorage.getItem("mazeHighScore") || 0;
+  document.getElementById("classicHighScore").innerText="High Score: "+c;
+  document.getElementById("mazeHighScore").innerText="High Score: "+h;
+  document.getElementById("classicBoard").innerText=c;
+  document.getElementById("mazeBoard").innerText=h;
 }
 
 function restartGame(){
@@ -249,7 +233,8 @@ function restartGame(){
   pacmanPos={x:0,y:0}; ghostPos={x:360,y:360};
   score=0; timeElapsed=0; updateHUD(); updatePosition();
   gameOverText.style.display="none"; pauseMenu.style.display="none";
-  spawnPellet(); clearInterval(ghostInterval); clearInterval(timerInterval);
+  spawnPellet(); 
+  clearInterval(ghostInterval); clearInterval(timerInterval);
   ghostInterval=setInterval(()=>{
     moveGhostSmart({pos:ghostPos});
     aliens.forEach(a=>moveGhostSmart(a));
@@ -280,9 +265,8 @@ function freezeGhost(){ ghostFrozen=true; setTimeout(()=>{ghostFrozen=false;},50
 
 function updateHUD(){ scoreDisplay.textContent=score; timerDisplay.textContent=timeElapsed; }
 
-/* SCREEN CONTROLS */
-function showMapSelect(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("mapSelectScreen").style.display="block"; controls.style.display="none"; updateHighScores(); }
-function showLeaderboard(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="block"; controls.style.display="none"; updateHighScores(); }
+function showMapSelect(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("mapSelectScreen").style.display="block"; updateHighScores(); }
+function showLeaderboard(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="block"; updateHighScores(); }
 function goHome(){ paused=false; clearInterval(ghostInterval); clearInterval(timerInterval); document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="none"; document.getElementById("gameArea").style.display="none"; document.getElementById("hud").style.display="none"; controls.style.display="none"; document.getElementById("homeScreen").style.display="block"; }
 
 function selectMap(map){
@@ -297,25 +281,24 @@ function selectMap(map){
 function pauseGame(){ paused=true; pauseMenu.style.display="block"; }
 function resumeGame(){ paused=false; pauseMenu.style.display="none"; }
 
-/* CUSTOMIZATION LOGIC */
 function openCustomization() { 
-  document.getElementById("gameArea").style.display = "block"; // Show arena bg for preview
+  document.getElementById("homeScreen").style.display = "none";
+  document.getElementById("gameArea").style.display = "block";
   customPopup.style.display = "block"; 
 }
 function closeCustomization() { 
   customPopup.style.display = "none"; 
   document.getElementById("gameArea").style.display = "none";
+  document.getElementById("homeScreen").style.display = "block";
 }
 
 function applyColors() {
   const pCol = document.getElementById("pacColor").value;
   const gCol = document.getElementById("ghostColor").value;
   const bCol = document.getElementById("borderColor").value;
-  
   pacman.style.backgroundColor = pCol;
   ghost.style.backgroundColor = gCol;
   gameArea.style.borderColor = bCol;
-  
   localStorage.setItem("pacTheme", pCol);
   localStorage.setItem("ghostTheme", gCol);
   localStorage.setItem("borderTheme", bCol);
@@ -330,7 +313,6 @@ function loadTheme(){
   }
 }
 
-/* ALIEN SPAWN FOR HARD MODE */
 function checkAlienSpawn(){
   if(currentMap!=="hard") return;
   if(score>=200 && aliens.length===0) spawnAlien();
@@ -350,7 +332,6 @@ function spawnAlien(){
   setTimeout(()=>{alienText.style.display="none";},2000);
 }
 
-/* INPUTS */
 document.getElementById("up").addEventListener("click",()=>movePacman("up"));
 document.getElementById("down").addEventListener("click",()=>movePacman("down"));
 document.getElementById("left").addEventListener("click",()=>movePacman("left"));
