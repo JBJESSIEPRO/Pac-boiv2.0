@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0""")/>>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Pac-Boi</title>
 <style>
   body { display: flex; flex-direction: column; align-items: center; background-color: #111; color: white; font-family: sans-serif; overflow: hidden; }
@@ -11,23 +11,28 @@
   #pacman, #ghost, .pellet, .alien { width: 40px; height: 40px; position: absolute; transition: transform 0.2s; }
   #pacman { background-color: yellow; border-radius: 50%; z-index: 2; }
   #ghost { background-color: red; border-radius: 50%; z-index: 2; }
-  .pellet { background-color: white; border-radius: 50%; z-index: 1; }
+  
+  /* Pellet Container */
+  .pellet { z-index: 1; display: flex; align-items: center; justify-content: center; }
+  /* The actual visible dot inside the container */
+  .pellet-dot { background-color: white; border-radius: 50%; }
+  
   .alien { background-color: green; border-radius: 50%; z-index: 2; }
 
   .controls { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
   .row { display: flex; justify-content: center; }
-  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; }
+  .controls button { width: 60px; height: 60px; font-size: 24px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; margin: 2px; }
 
-  #gameOver, #pauseMenu, #customPopup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.9); padding: 25px; border-radius: 15px; display: none; z-index: 100; text-align: center; }
+  #gameOver, #pauseMenu, #customPopup, #settingsMenu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0,0,0,0.95); padding: 25px; border-radius: 15px; display: none; z-index: 100; text-align: center; }
   #gameOver, #pauseMenu { color: red; font-size: 24px; border: 2px solid red; }
-  #customPopup { border: 2px solid #00ffff; width: 260px; color: white; }
-  .popup-btn { margin-top: 15px; background: #00ffff; color: black; font-size: 18px; font-weight: bold; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+  #customPopup, #settingsMenu { border: 2px solid #00ffff; width: 280px; color: white; }
+  .popup-btn { margin-top: 10px; background: #00ffff; color: black; font-size: 16px; font-weight: bold; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+  .setting-row { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; font-size: 14px; }
 
   #homeScreen, #mapSelectScreen, #leaderboardScreen { text-align: center; margin-top: 80px; }
   .logo { font-size: 60px; color: white; text-shadow:0 0 5px #00ffff,0 0 10px #00ffff,0 0 20px #0088ff; }
   .tagline { font-size: 18px; margin-bottom: 30px; color: #ccc; }
   .menuButtons button, #mapSelectScreen button, #leaderboardScreen button { width: 250px; min-height: 60px; font-size: 18px; display: block; margin: 15px auto; padding: 12px 10px; background: transparent; color: white; border: 2px solid #00ffff; border-radius: 8px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-  .menuButtons button:hover { background: rgba(0,255,255,0.1); box-shadow: 0 0 15px #00ffff; transform: scale(1.05); }
   #alienText { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #00ff00; color: black; padding: 8px 16px; border-radius: 6px; display: none; font-weight: bold; z-index: 15; text-align: center; width: 80%; }
 </style>
 </head>
@@ -44,15 +49,15 @@
 </div>
 
 <div id="mapSelectScreen" style="display:none;">
-  <h2 style="text-shadow: 0 0 10px #ff00ff;">SELECT MAP</h2>
-  <button onclick="selectMap('classic')">Classic Arena<br><small id="classicHighScore">High Score: 0</small></button>
-  <button onclick="selectMap('hard')">Hard Mode<br><small id="mazeHighScore">High Score: 0</small></button>
+  <h2>SELECT MAP</h2>
+  <button onclick="selectMap('classic')">Classic Arena</button>
+  <button onclick="selectMap('hard')">Hard Mode</button>
   <button onclick="goHome()">BACK</button>
 </div>
 
 <div id="leaderboardScreen" style="display:none;">
-  <h2 style="text-shadow: 0 0 10px #ff00ff;">LEADERBOARD</h2>
-  <p>Classic Arena: <span id="classicBoard">0</span></p>
+  <h2>LEADERBOARD</h2>
+  <p>Classic: <span id="classicBoard">0</span></p>
   <p>Hard Mode: <span id="mazeBoard">0</span></p>
   <button onclick="goHome()">BACK</button>
 </div>
@@ -65,10 +70,32 @@
 
 <div id="gameArea" style="display:none;">
   <div id="pacman"></div><div id="ghost"></div>
-  <div id="alienText">Evolution Triggered!</div>
-  <div id="gameOver">Game Over!<br/><button class="popup-btn" style="background:red; color:white;" onclick="restartGame()">Restart</button><button class="popup-btn" style="background:red; color:white;" onclick="goHome()">Exit</button></div>
-  <div id="pauseMenu"><h2 style="color:white; margin-top:0;">Paused</h2><button class="popup-btn" onclick="resumeGame()">Resume</button><button class="popup-btn" onclick="restartGame()">Restart</button><button class="popup-btn" onclick="goHome()">Exit</button></div>
-  <div id="customPopup"><h3 style="margin-top:0; color:#00ffff;">THEME LAB</h3><div class="theme-option">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div><div class="theme-option">GHOST <input type="color" id="ghostColor" value="#ff0000" onchange="applyColors()"></div><div class="theme-option">ARENA <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div><button class="popup-btn" onclick="closeCustomization()">SAVE & CLOSE</button></div>
+  <div id="alienText"></div>
+  <div id="gameOver">Game Over!<br/><button class="popup-btn" onclick="restartGame()">Restart</button><button class="popup-btn" onclick="goHome()">Exit</button></div>
+  
+  <div id="pauseMenu">
+    <h2>Paused</h2>
+    <button class="popup-btn" onclick="resumeGame()">Resume</button>
+    <button class="popup-btn" onclick="restartGame()">Restart</button>
+    <button class="popup-btn" style="background:red; color:white;" onclick="goHome()">Exit</button>
+  </div>
+  
+  <div id="customPopup">
+    <h3 style="color:#00ffff; margin-bottom:10px;">THEME LAB</h3>
+    <div class="setting-row">PAC-BOI <input type="color" id="pacColor" value="#ffff00" onchange="applyColors()"></div>
+    <div class="setting-row">GHOST <input type="color" id="ghostColor" value="#ff0000" onchange="applyColors()"></div>
+    <div class="setting-row">ARENA <input type="color" id="borderColor" value="#ffffff" onchange="applyColors()"></div>
+    <div class="setting-row">PELLET SIZE <input type="range" id="pelletSize" min="10" max="40" value="10" oninput="applyPelletSize()"></div>
+    <button class="popup-btn" style="background:#ff00ff; color:white;" onclick="openSettings()">SETTINGS</button>
+    <button class="popup-btn" onclick="closeCustomization()">SAVE & QUIT</button>
+  </div>
+
+  <div id="settingsMenu">
+    <h3 style="color:#ff00ff; margin-bottom:20px;">CONTROLS</h3>
+    <div class="setting-row">Btn Size <input type="range" id="btnSize" min="40" max="100" value="60" oninput="applyControlSettings()"></div>
+    <div class="setting-row">Spacing <input type="range" id="btnSpace" min="0" max="20" value="2" oninput="applyControlSettings()"></div>
+    <button class="popup-btn" onclick="closeSettings()">SAVE & BACK</button>
+  </div>
 </div>
 
 <div class="controls" style="display:none;">
@@ -77,7 +104,7 @@
 </div>
 
 <script>
-const pacman = document.getElementById("pacman"), ghost = document.getElementById("ghost"), gameOverText = document.getElementById("gameOver"), pauseMenu = document.getElementById("pauseMenu"), gameArea = document.getElementById("gameArea"), scoreDisplay = document.getElementById("score"), timerDisplay = document.getElementById("timer"), controls = document.querySelector(".controls"), alienText = document.getElementById("alienText"), customPopup = document.getElementById("customPopup");
+const pacman = document.getElementById("pacman"), ghost = document.getElementById("ghost"), gameOverText = document.getElementById("gameOver"), pauseMenu = document.getElementById("pauseMenu"), gameArea = document.getElementById("gameArea"), scoreDisplay = document.getElementById("score"), timerDisplay = document.getElementById("timer"), controls = document.querySelector(".controls"), alienText = document.getElementById("alienText"), customPopup = document.getElementById("customPopup"), settingsMenu = document.getElementById("settingsMenu");
 
 let pacmanPos = { x: 0, y: 0 }, ghostPos = { x: 360, y: 360 }, ghostInterval, timerInterval, pellet = null, ghostFrozen = false, score = 0, timeElapsed = 0, currentMap = "classic", paused = false, aliens = [], gameSpeed = 500, isHiveMind = false;
 
@@ -100,7 +127,6 @@ function moveGhostSmart(g, index){
   if(ghostFrozen || paused) return;
   let moveX = g.pos.x < pacmanPos.x ? 40 : -40;
   let moveY = g.pos.y < pacmanPos.y ? 40 : -40;
-
   if(currentMap === "hard" && isHiveMind){
     if(index % 2 === 0){ if(g.pos.x !== pacmanPos.x) g.pos.x += moveX; else g.pos.y += moveY; }
     else { if(g.pos.y !== pacmanPos.y) g.pos.y += moveY; else g.pos.x += moveX; }
@@ -138,7 +164,14 @@ function startGhostLoop(){
 
 function spawnPellet(){
   if(pellet) pellet.remove();
-  const pelletEl=document.createElement("div"); pelletEl.className="pellet";
+  const pelletEl=document.createElement("div"); 
+  pelletEl.className="pellet";
+  const dot = document.createElement("div");
+  dot.className = "pellet-dot";
+  dot.style.width = document.getElementById("pelletSize").value + "px";
+  dot.style.height = document.getElementById("pelletSize").value + "px";
+  pelletEl.appendChild(dot);
+  
   const posX=Math.floor(Math.random()*10)*40, posY=Math.floor(Math.random()*10)*40;
   pelletEl.style.transform=`translate(${posX}px,${posY}px)`; pelletEl.dataset.x=posX; pelletEl.dataset.y=posY;
   gameArea.appendChild(pelletEl); pellet=pelletEl;
@@ -154,46 +187,61 @@ function checkPelletPickup(){
 function freezeGhost(){ ghostFrozen=true; setTimeout(()=>{ghostFrozen=false;},5000); }
 function updateHUD(){ scoreDisplay.textContent=score; timerDisplay.textContent=timeElapsed; }
 
-/* Evolution System - HARD MODE ONLY */
 function checkMilestones(){
   if(currentMap!=="hard") return;
   if(score === 200 && aliens.length === 0) { notify("NEW ALIEN APPEARED!"); spawnAlien(); }
   if(score === 400 && gameSpeed === 500) { notify("SPEED BOOST!"); gameSpeed = 300; startGhostLoop(); }
   if(score === 600 && !isHiveMind) { notify("HIVE MIND ACTIVATED!"); isHiveMind = true; }
   if(score === 800 && gameSpeed === 300) { notify("THE SLOW-MO PAIN..."); gameSpeed = 700; startGhostLoop(); }
-  if(score === 1000 && aliens.length === 1) { notify("THIRD ALIEN ARRIVES!"); spawnAlien(); }
 }
 
 function notify(txt){ alienText.innerText = txt; alienText.style.display = "block"; setTimeout(()=> { alienText.style.display = "none"; }, 3000); }
 
 function spawnAlien(){
   const aEl=document.createElement("div"); aEl.className="alien"; 
-  const posX=Math.floor(Math.random()*10)*40;
-  const posY=Math.floor(Math.random()*10)*40;
+  const posX=Math.floor(Math.random()*10)*40, posY=Math.floor(Math.random()*10)*40;
   aEl.style.transform=`translate(${posX}px,${posY}px)`;
   gameArea.appendChild(aEl);
   aliens.push({el:aEl, pos:{x:posX, y:posY}});
 }
 
+/* UI Logic */
 function showMapSelect(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("mapSelectScreen").style.display="block"; updateHighScores(); }
 function showLeaderboard(){ document.getElementById("homeScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="block"; updateHighScores(); }
-function goHome(){ paused=false; clearInterval(ghostInterval); clearInterval(timerInterval); document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("leaderboardScreen").style.display="none"; document.getElementById("gameArea").style.display="none"; document.getElementById("hud").style.display="none"; controls.style.display="none"; document.getElementById("homeScreen").style.display="block"; }
+function goHome(){ location.reload(); }
 function selectMap(map){ currentMap=map; document.getElementById("mapSelectScreen").style.display="none"; document.getElementById("gameArea").style.display="block"; document.getElementById("hud").style.display="flex"; controls.style.display="flex"; restartGame(); }
 function pauseGame(){ paused=true; pauseMenu.style.display="block"; }
 function resumeGame(){ paused=false; pauseMenu.style.display="none"; }
+
+/* Settings Logic */
 function openCustomization() { document.getElementById("homeScreen").style.display = "none"; document.getElementById("gameArea").style.display = "block"; customPopup.style.display = "block"; }
 function closeCustomization() { customPopup.style.display = "none"; document.getElementById("gameArea").style.display = "none"; document.getElementById("homeScreen").style.display = "block"; }
+function openSettings() { customPopup.style.display = "none"; settingsMenu.style.display = "block"; }
+function closeSettings() { settingsMenu.style.display = "none"; customPopup.style.display = "block"; }
 
 function applyColors() {
-  const pCol = document.getElementById("pacColor").value;
-  const gCol = document.getElementById("ghostColor").value;
-  const bCol = document.getElementById("borderColor").value;
-  pacman.style.backgroundColor = pCol;
-  ghost.style.backgroundColor = gCol;
-  gameArea.style.borderColor = bCol;
-  localStorage.setItem("pacTheme", pCol);
-  localStorage.setItem("ghostTheme", gCol);
-  localStorage.setItem("borderTheme", bCol);
+  pacman.style.backgroundColor = document.getElementById("pacColor").value;
+  ghost.style.backgroundColor = document.getElementById("ghostColor").value;
+  gameArea.style.borderColor = document.getElementById("borderColor").value;
+  localStorage.setItem("pacTheme", document.getElementById("pacColor").value);
+  localStorage.setItem("ghostTheme", document.getElementById("ghostColor").value);
+  localStorage.setItem("borderTheme", document.getElementById("borderColor").value);
+}
+
+function applyPelletSize() {
+  const size = document.getElementById("pelletSize").value + "px";
+  const dots = document.querySelectorAll(".pellet-dot");
+  dots.forEach(dot => { dot.style.width = size; dot.style.height = size; });
+  localStorage.setItem("pelletSize", size);
+}
+
+function applyControlSettings() {
+  const size = document.getElementById("btnSize").value + "px";
+  const space = document.getElementById("btnSpace").value + "px";
+  document.querySelectorAll(".controls button").forEach(btn => {
+    btn.style.width = size; btn.style.height = size; btn.style.margin = space;
+  });
+  localStorage.setItem("btnSize", size); localStorage.setItem("btnSpace", space);
 }
 
 function loadTheme(){
@@ -202,6 +250,15 @@ function loadTheme(){
     document.getElementById("ghostColor").value = localStorage.getItem("ghostTheme");
     document.getElementById("borderColor").value = localStorage.getItem("borderTheme");
     applyColors();
+  }
+  if(localStorage.getItem("pelletSize")){
+    document.getElementById("pelletSize").value = parseInt(localStorage.getItem("pelletSize"));
+    applyPelletSize();
+  }
+  if(localStorage.getItem("btnSize")){
+    document.getElementById("btnSize").value = parseInt(localStorage.getItem("btnSize"));
+    document.getElementById("btnSpace").value = parseInt(localStorage.getItem("btnSpace"));
+    applyControlSettings();
   }
 }
 
@@ -215,6 +272,7 @@ function updateHighScores(){
   document.getElementById("mazeBoard").innerText = localStorage.getItem("mazeHighScore")||0;
 }
 
+/* Event Listeners */
 document.getElementById("up").onclick = () => movePacman("up");
 document.getElementById("down").onclick = () => movePacman("down");
 document.getElementById("left").onclick = () => movePacman("left");
