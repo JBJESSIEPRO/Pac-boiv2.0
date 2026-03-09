@@ -1,10 +1,3 @@
-# Pac-boiv2.0
-
-https://jbjessiepro.github.io/Pac-boiv2.0/
-
-# PAC-BOI v2.0
-### *Collect. Freeze. Survive.*
-
 🎮 **[Play Now →](https://jbjessiepro.github.io/Pac-boiv2.0/)**
 
 ---
@@ -62,26 +55,12 @@ The most complex feature in the game. At 800 points, enemies stop acting indepen
 ## How to Play
 
 1. Visit the [live game](https://jbjessiepro.github.io/Pac-boiv2.0/)
-2. Hit **Customize** to set up your character (optional)
+2. Hit **Customize** to change the colors (optional)
 3. Hit **Play** to start
 4. **Mobile:** Use the on-screen D-pad to move
 5. **Desktop:** Use arrow keys to move
 6. Collect dots, avoid or freeze enemies, survive as long as possible
 7. Check the **Leaderboard** to see top scores
-
----
-
-## Run Locally
-
-No dependencies, no build steps needed.
-
-```bash
-git clone https://github.com/JBJESSIEPRO/Pac-boiv2.0.git
-cd Pac-boiv2.0
-# Open index.html in any browser
-```
-
-Or just open `index.html` directly in your browser — it works immediately.
 
 ---
 
@@ -100,7 +79,7 @@ Or just open `index.html` directly in your browser — it works immediately.
 
 ## Developer
 
-**Jessie Jennings** — Self-taught developer & designer from Trinidad & Tobago 🇹🇹
+**Jessie Jennings** — Self-taught developer & designer.
 
 - 🌐 Portfolio: [jbjessiepro.github.io](https://jbjessiepro.github.io/Portfolio)
 - 📧 Email: jbjessiepro@gmail.com
