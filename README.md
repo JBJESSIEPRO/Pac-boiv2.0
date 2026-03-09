@@ -102,7 +102,7 @@ Or just open `index.html` directly in your browser — it works immediately.
 
 **Jessie Jennings** — Self-taught developer & designer from Trinidad & Tobago 🇹🇹
 
-- 🌐 Portfolio: [jbjessiepro.github.io](https://jbjessiepro.github.io)
+- 🌐 Portfolio: [jbjessiepro.github.io](https://jbjessiepro.github.io/Portfolio)
 - 📧 Email: jbjessiepro@gmail.com
 - 🐙 GitHub: [@JBJESSIEPRO](https://github.com/JBJESSIEPRO)
 
