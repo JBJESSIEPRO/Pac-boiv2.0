@@ -280,6 +280,10 @@ document.getElementById("right").onclick = () => movePacman("right");
 
 document.addEventListener("keydown",(e)=>{
   if(e.key.startsWith("Arrow")) movePacman(e.key.replace("Arrow","").toLowerCase());
+  if(e.key==="w" || e.key==="W") movePacman("up");
+  if(e.key==="s" || e.key==="S") movePacman("down");
+  if(e.key==="a" || e.key==="A") movePacman("left");
+  if(e.key==="d" || e.key==="D") movePacman("right");
   if(e.key==="Escape") pauseGame();
 });
 </script>
